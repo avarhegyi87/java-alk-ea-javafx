@@ -11,5 +11,8 @@
         <property name="connection.username">root</property>
         <property name="connection.password"></property>
         <mapping class="com.example.cities.City"/>
+        <mapping class="com.example.cities.County"/>
+<!--        <mapping class="com.example.cities.PopulationId"/>-->
+        <mapping class="com.example.cities.Population"/>
     </session-factory>
 </hibernate-configuration>

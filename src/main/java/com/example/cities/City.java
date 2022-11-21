@@ -2,6 +2,8 @@ package com.example.cities;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "varos")
 public class City {
@@ -21,6 +23,16 @@ public class City {
 
     @Column(name = "megyeijogu")
     public boolean CountyRights;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "MEGYEID", referencedColumnName = "ID",
+            insertable = false, updatable = false
+    )
+    public County countyOfCity;
+
+    @OneToMany(mappedBy = "city")
+    public List<Population> populationList;
 
     public City() {
     }
@@ -70,5 +82,21 @@ public class City {
 
     public void setCountyRights(boolean countyRights) {
         CountyRights = countyRights;
+    }
+
+    public County getCountyOfCity() {
+        return countyOfCity;
+    }
+
+    public void setCountyOfCity(County county) {
+        this.countyOfCity = county;
+    }
+
+    public List<Population> getPopulationList() {
+        return populationList;
+    }
+
+    public void setPopulationList(List<Population> populationList) {
+        this.populationList = populationList;
     }
 }

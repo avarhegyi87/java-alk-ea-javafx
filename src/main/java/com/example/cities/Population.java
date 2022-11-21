@@ -1,8 +1,27 @@
 package com.example.cities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
+import java.io.Serializable;
+import java.time.Year;
+
+//class PopulationId implements Serializable {
+//    private int cityId;
+//    private Year year;
+//    private int women;
+//    private int totalPop;
+//
+//    public PopulationId(int cityId, Year year, int women, int totalPop) {
+//        this.cityId = cityId;
+//        this.year = year;
+//        this.women = women;
+//        this.totalPop = totalPop;
+//    }
+//}
+
+@Entity
+//@IdClass(PopulationId.class)
+@Table(name = "lelekszam")
 public class Population {
     @Id
     @Column(name = "varosid")
@@ -10,13 +29,20 @@ public class Population {
 
     @Id
     @Column(name = "ev")
-    public int Year;
+    public Year Year;
 
     @Column(name = "no")
     public int Women;
 
     @Column(name = "osszesen")
     public int TotalPop;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "VAROSID", referencedColumnName = "ID",
+            insertable = false, updatable = false
+    )
+    public City city;
 
     public int getCityId() {
         return CityId;
@@ -26,11 +52,11 @@ public class Population {
         CityId = cityId;
     }
 
-    public int getYear() {
+    public Year getYear() {
         return Year;
     }
 
-    public void setYear(int year) {
+    public void setYear(Year year) {
         Year = year;
     }
 
@@ -48,5 +74,13 @@ public class Population {
 
     public void setTotalPop(int totalPop) {
         TotalPop = totalPop;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
     }
 }
