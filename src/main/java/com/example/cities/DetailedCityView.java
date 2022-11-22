@@ -1,5 +1,6 @@
 package com.example.cities;
 
+import java.time.Year;
 import java.util.List;
 
 public class DetailedCityView {
@@ -69,8 +70,9 @@ public class DetailedCityView {
 
     public int FindMostRecentPopulation() {
         Population maxYear = new Population();
+        maxYear.Year = Year.of(0);
         for (Population population : this.CityPopulation) {
-            if (maxYear.Year.compareTo(population.Year) > 0) {
+            if (maxYear.Year.compareTo(population.Year) <= 0) {
                 maxYear = population;
             }
         }

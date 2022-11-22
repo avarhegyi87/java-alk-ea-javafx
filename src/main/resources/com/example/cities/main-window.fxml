@@ -9,11 +9,11 @@
         <menus>
             <Menu mnemonicParsing="false" text="Adatbázis">
                 <items>
-                    <MenuItem mnemonicParsing="false" text="Olvas" onAction="#menuReadCitiesClick" />
+                    <MenuItem mnemonicParsing="false" onAction="#menuReadCitiesClick" text="Olvas" />
                     <MenuItem mnemonicParsing="false" text="Olvas2" />
-                    <MenuItem mnemonicParsing="false" text="Hozzáad" onAction="#menuCreateCityClick" />
-                    <MenuItem mnemonicParsing="false" text="Módosít" onAction="#menuUpdateCityClick" />
-                    <MenuItem mnemonicParsing="false" text="Töröl" onAction="#menuDeleteCityClick" />
+                    <MenuItem mnemonicParsing="false" onAction="#menuCreateCityClick" text="Hozzáad" />
+                    <MenuItem mnemonicParsing="false" onAction="#menuUpdateCityClick" text="Módosít" />
+                    <MenuItem mnemonicParsing="false" onAction="#menuDeleteCityClick" text="Töröl" />
                 </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Rest1">
@@ -56,27 +56,39 @@
        <VBox.margin><Insets top="0" /></VBox.margin>
     </MenuBar>
 
-    <Label fx:id="lbAddCity">Város hozzáadása</Label>
+    <Label fx:id="lbTitle"/>
     <GridPane fx:id="gpAddCity" alignment="BOTTOM_CENTER" hgap="3" vgap="5">
-        <Label GridPane.columnIndex="0" GridPane.rowIndex="0">Település neve:</Label>
+        <Label text="Helyiségnév:" GridPane.columnIndex="0" GridPane.rowIndex="0">Település neve:</Label>
         <TextField fx:id="tfCityName" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="0" />
-        <Label GridPane.columnIndex="0" GridPane.rowIndex="1">Megye:</Label>
+        <Label text="Megye" GridPane.columnIndex="0" GridPane.rowIndex="1">Megye:</Label>
         <ComboBox fx:id="cbCounty" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-        <Label GridPane.columnIndex="0" GridPane.rowIndex="2">Megyeszékhely</Label>
-        <RadioButton fx:id="rbCountyCapitalYes" text="Igen" GridPane.columnIndex="1" GridPane.rowIndex="2">
+        <Label text="Megyeszékhely" GridPane.columnIndex="0" GridPane.rowIndex="2">Megyeszékhely</Label>
+        <RadioButton fx:id="rbCountyCapitalYes" text="Igen" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
             <toggleGroup>
                 <ToggleGroup fx:id="groupCountyCapital" />
             </toggleGroup>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
         </RadioButton>
         <RadioButton fx:id="rbCountyCapitalNo" text="Nem" toggleGroup="$groupCountyCapital" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-        <Label GridPane.columnIndex="0" GridPane.rowIndex="3">Megyei jogú város</Label>
-        <RadioButton fx:id="rbCountyRightsYes" text="Igen" GridPane.columnIndex="1" GridPane.rowIndex="3">
+        <Label text="Megyei jogú város:" GridPane.columnIndex="0" GridPane.rowIndex="3">Megyei jogú város:</Label>
+        <RadioButton fx:id="rbCountyRightsYes" text="Igen" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
             <toggleGroup>
                 <ToggleGroup fx:id="groupCountyRights" />
             </toggleGroup>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
         </RadioButton>
         <RadioButton fx:id="rbCountyRightsNo" text="Nem" toggleGroup="$groupCountyRights" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-        <Button onAction="#btAddCityClick" GridPane.columnIndex="1" GridPane.rowIndex="4">Mentés</Button>
+        <Label text="Aktuális népesség:" GridPane.rowIndex="4" />
+        <TextField fx:id="tfPopulation" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+        <Label fx:id="lbWrongNumFormat" text="Incorrect number format!" textFill="#e40000" visible="false" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+        <Label text="Ebből nők:" GridPane.rowIndex="5" />
+        <TextField fx:id="tfWomen" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+        <Label fx:id="lbWrongNumFormatWomen" text="Incorrect number format!" textFill="#e40000" visible="false" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+        <Button defaultButton="true" onAction="#btAddCityClick" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="6">Mentés</Button>
 
         <columnConstraints>
             <ColumnConstraints />
@@ -89,12 +101,28 @@
             <RowConstraints />
             <RowConstraints />
             <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
         </rowConstraints>
         <VBox.margin>
             <Insets bottom="20.0" left="20.0" right="20.0" />
         </VBox.margin>
     </GridPane>
-    <TableView fx:id="tv"/>
+   <GridPane alignment="TOP_CENTER">
+     <columnConstraints>
+       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+     </columnConstraints>
+     <rowConstraints>
+       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+     </rowConstraints>
+      <VBox.margin>
+         <Insets bottom="20.0" left="20.0" right="20.0" />
+      </VBox.margin>
+   </GridPane>
+    <TableView fx:id="tv" prefHeight="314.0" prefWidth="500.0" />
     <padding>
         <Insets bottom="20.0" />
     </padding>

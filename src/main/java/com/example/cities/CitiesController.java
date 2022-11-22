@@ -1,5 +1,6 @@
 package com.example.cities;
 
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -12,14 +13,15 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
+import java.time.Year;
 import java.util.List;
 import java.util.Objects;
 
 public class CitiesController {
     SessionFactory factory;
-    @FXML private Label lbAddCity;
+    @FXML private Label lbTitle, lbWrongNumFormat, lbWrongNumFormatWomen;
     @FXML private GridPane gpAddCity;
-    @FXML private TextField tfCityName;
+    @FXML private TextField tfCityName, tfPopulation, tfWomen;
     @FXML private ComboBox cbCounty;
     @FXML private ToggleGroup groupCountyCapital, groupCountyRights;
     @FXML private RadioButton rbCountyCapitalYes, rbCountyCapitalNo;
@@ -41,8 +43,8 @@ public class CitiesController {
 
     @FXML
     void DeleteElements() {
-        lbAddCity.setVisible(false);
-        lbAddCity.setManaged(false);
+        lbTitle.setVisible(false);
+        lbTitle.setManaged(false);
         gpAddCity.setVisible(false);
         gpAddCity.setManaged(false);
         tv.setVisible(false);
@@ -52,35 +54,120 @@ public class CitiesController {
     @FXML
     void menuCreateCityClick() {
         DeleteElements();
+        cbCounty.setItems(FXCollections.observableList(getAllCountyNames()));
+        lbTitle.setText("Város hozzáadása");
         gpAddCity.setVisible(true);
         gpAddCity.setManaged(true);
     }
 
     @FXML
-    void AddCity() {
+    List<String> getAllCountyNames() {
         Session session = factory.openSession();
         Transaction t = session.beginTransaction();
+        List<String> countyList = session.createQuery("SELECT CountyName FROM County", String.class).getResultList();
+        return countyList;
+    }
 
-        RadioButton selectedCountyCapital = (RadioButton)groupCountyCapital.getSelectedToggle();
-        String valueCountyCapital = selectedCountyCapital.getText();
-        boolean countyCapital = Objects.equals(valueCountyCapital, "Igen");
+    @FXML
+    String AddCity() {
+        int numPopulation;
+        try {
+            numPopulation = Integer.parseInt(tfPopulation.getText());
+        } catch (NumberFormatException nfe) {
+            lbWrongNumFormat.setVisible(true);
+            return "Helytelen számformátum!";
+        }
+        int numWomen;
+        try {
+            numWomen = Integer.parseInt(tfWomen.getText());
+        } catch (NumberFormatException nfe) {
+            lbWrongNumFormatWomen.setVisible(true);
+            return "Helytelen számformátum!";
+        }
+        try {
+            Session session = factory.openSession();
+            Transaction t = session.beginTransaction();
 
-        RadioButton selectedCountyRights = (RadioButton)groupCountyRights.getSelectedToggle();
-        String valueCountyRights = selectedCountyRights.getText();
-        boolean countyRights = Objects.equals(valueCountyRights, "Igen");
+            RadioButton selectedCountyCapital = (RadioButton) groupCountyCapital.getSelectedToggle();
+            String valueCountyCapital = selectedCountyCapital.getText();
+            boolean countyCapital = Objects.equals(valueCountyCapital, "Igen");
 
-        City city = new City(tfCityName.getText(), 1, countyCapital, countyRights);
-        session.persist(city);
-        t.commit();
+            RadioButton selectedCountyRights = (RadioButton) groupCountyRights.getSelectedToggle();
+            String valueCountyRights = selectedCountyRights.getText();
+            boolean countyRights = Objects.equals(valueCountyRights, "Igen");
+
+            City city = new City(
+                    tfCityName.getText(),
+                    getCountyIdByName((String) cbCounty.getValue()),
+                    countyCapital,
+                    countyRights
+            );
+            Query query;
+            int countyId = getCountyIdByName((String) cbCounty.getValue());
+            if (countyId == 0) {
+                return "%s megye nem található az adatbázisban".formatted(cbCounty.getValue());
+            }
+            List<City> cityFound = session.createQuery(
+                    "FROM City WHERE CityName = :cityName AND CountyId = :countyId", City.class)
+                    .setParameter("cityName", tfCityName.getText())
+                    .setParameter("countyId", countyId)
+                    .getResultList();
+            if (cityFound.size() > 0) {
+                return "%s nevű város %s nevű megyében már létezik az adatbázisban!"
+                        .formatted(tfCityName.getText(), cbCounty.getValue());
+            }
+
+            session.persist(city);
+            t.commit();
+
+            t = session.beginTransaction();
+            Population population = new Population();
+            query = session.createQuery("SELECT Id FROM City WHERE CityName = :cityName");
+            query.setParameter("cityName", tfCityName.getText());
+            query.setMaxResults(1);
+            population.CityId = (int) query.getSingleResult();
+            population.city = city;
+            population.Year = Year.now();
+            population.TotalPop = numPopulation;
+            population.Women = numWomen;
+            session.persist(population);
+            t.commit();
+            return "";
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     @FXML
     public void btAddCityClick(ActionEvent actionEvent) {
-        AddCity();
-        DeleteElements();
-        lbAddCity.setVisible(true);
-        lbAddCity.setManaged(true);
-        lbAddCity.setText("Adatok elmentve az adatbázisba");
+        String addResult = AddCity();
+        lbTitle.setVisible(true);
+        lbTitle.setManaged(true);
+        if (addResult == "") {
+            DeleteElements();
+            lbTitle.setVisible(true);
+            lbTitle.setManaged(true);
+            lbTitle.setText("Adatok sikeresen elmentve az adatbázisba");
+        } else {
+            lbTitle.setText(addResult);
+            if (!addResult.equals("Helytelen számformátum!")) {
+                lbWrongNumFormat.setVisible(false);
+                lbWrongNumFormat.setManaged(false);
+                lbWrongNumFormatWomen.setVisible(false);
+                lbWrongNumFormatWomen.setVisible(false);
+            }
+        }
+    }
+
+    @FXML
+    public int getCountyIdByName(String countyName) {
+        Session session = factory.openSession();
+        Transaction t = session.beginTransaction();
+        Query query;
+        query = session.createQuery("SELECT Id FROM County WHERE CountyName = :countyName");
+        query.setParameter("countyName", countyName);
+        query.setMaxResults(1);
+        return (int) query.getSingleResult();
     }
 
     @FXML
@@ -106,21 +193,20 @@ public class CitiesController {
         CountyCapitalCol = new TableColumn<>("Megyeszékhely");
         CountyRightsCol = new TableColumn<>("Megyei jogú város");
         MostRecentPopulationCol = new TableColumn<>("Legfrissebb népességi adat");
-        tv.getColumns().addAll(IdCol, NameCol, CountyCol, CountyCapitalCol, CountyRightsCol); // , MostRecentPopulationCol
+        tv.getColumns().addAll(IdCol, NameCol, CountyCol, CountyCapitalCol, CountyRightsCol, MostRecentPopulationCol);
         IdCol.setCellValueFactory(new PropertyValueFactory<>("Id"));
         NameCol.setCellValueFactory(new PropertyValueFactory<>("CityName"));
         CountyCol.setCellValueFactory(new PropertyValueFactory<>("CountyName"));
         CountyCapitalCol.setCellValueFactory(new PropertyValueFactory<>("CountyCapital"));
         CountyRightsCol.setCellValueFactory(new PropertyValueFactory<>("CountyRights"));
-//        MostRecentPopulationCol.setCellValueFactory(new PropertyValueFactory<>("MostRecentPopulation"));
+        MostRecentPopulationCol.setCellValueFactory(new PropertyValueFactory<>("MostRecentPopulation"));
         tv.getItems().clear();
         Session session = factory.openSession();
         Transaction t = session.beginTransaction();
         Query query;
 //        query = session.createQuery("SELECT city, county FROM City city JOIN County county ON county.Id = city.CountyId ORDER BY city.Id");
-        query = session.createQuery("FROM City");
-        List<City> results;
-        results = query.list();
+        List<City> results = session.createQuery("FROM City", City.class).getResultList();
+
         for (City resultRow : results) {
             DetailedCityView detailedCityView = new DetailedCityView();
             detailedCityView.Id = resultRow.Id;
@@ -130,8 +216,8 @@ public class CitiesController {
             else detailedCityView.CountyCapital = "nem";
             if (resultRow.CountyRights) detailedCityView.CountyRights = "igen";
             else detailedCityView.CountyRights = "nem";
-//            detailedCityView.CityPopulation = resultRow.populationList;
-//            detailedCityView.MostRecentPopulation = detailedCityView.FindMostRecentPopulation();
+            detailedCityView.CityPopulation = resultRow.populationList;
+            detailedCityView.MostRecentPopulation = detailedCityView.FindMostRecentPopulation();
             tv.getItems().add(detailedCityView);
         }
         System.out.println();

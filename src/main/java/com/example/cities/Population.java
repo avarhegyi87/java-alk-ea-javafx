@@ -44,6 +44,9 @@ public class Population {
     )
     public City city;
 
+    public Population() {
+    }
+
     public int getCityId() {
         return CityId;
     }
