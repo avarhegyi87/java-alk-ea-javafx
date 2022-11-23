@@ -2,7 +2,6 @@ package com.example.cities;
 
 import jakarta.persistence.*;
 
-import java.io.Serializable;
 import java.time.Year;
 
 //class PopulationId implements Serializable {
@@ -37,12 +36,12 @@ public class Population {
     @Column(name = "osszesen")
     public int TotalPop;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "VAROSID", referencedColumnName = "ID",
             insertable = false, updatable = false
     )
-    public City city;
+    public City cityForPopulation;
 
     public Population() {
     }
@@ -79,11 +78,11 @@ public class Population {
         TotalPop = totalPop;
     }
 
-    public City getCity() {
-        return city;
+    public City getCityForPopulation() {
+        return cityForPopulation;
     }
 
-    public void setCity(City city) {
-        this.city = city;
+    public void setCityForPopulation(City city) {
+        this.cityForPopulation = city;
     }
 }

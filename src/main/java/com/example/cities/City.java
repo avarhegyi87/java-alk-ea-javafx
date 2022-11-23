@@ -31,7 +31,7 @@ public class City {
     )
     public County countyOfCity;
 
-    @OneToMany(mappedBy = "city")
+    @OneToMany(mappedBy = "cityForPopulation", cascade = {CascadeType.REMOVE})
     public List<Population> populationList;
 
     public City() {

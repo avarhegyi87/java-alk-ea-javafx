@@ -16,13 +16,14 @@ import org.hibernate.query.Query;
 import java.time.Year;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class CitiesController {
     SessionFactory factory;
     @FXML private Label lbTitle, lbWrongNumFormat, lbWrongNumFormatWomen;
-    @FXML private GridPane gpAddCity;
+    @FXML private GridPane gpAddCity, gpDeleteCity;
     @FXML private TextField tfCityName, tfPopulation, tfWomen;
-    @FXML private ComboBox cbCounty;
+    @FXML private ComboBox cbCounty, cbDelCity;
     @FXML private ToggleGroup groupCountyCapital, groupCountyRights;
     @FXML private RadioButton rbCountyCapitalYes, rbCountyCapitalNo;
     @FXML private RadioButton rbCountyRightsYes, rbCountyRightsNo;
@@ -47,6 +48,8 @@ public class CitiesController {
         lbTitle.setManaged(false);
         gpAddCity.setVisible(false);
         gpAddCity.setManaged(false);
+        gpDeleteCity.setVisible(false);
+        gpDeleteCity.setManaged(false);
         tv.setVisible(false);
         tv.setManaged(false);
     }
@@ -62,10 +65,16 @@ public class CitiesController {
 
     @FXML
     List<String> getAllCountyNames() {
-        Session session = factory.openSession();
-        Transaction t = session.beginTransaction();
-        List<String> countyList = session.createQuery("SELECT CountyName FROM County", String.class).getResultList();
+        List<String> countyList = factory.openSession().createQuery("SELECT CountyName FROM County", String.class)
+                .getResultList();
         return countyList;
+    }
+
+    @FXML
+    List<String> getAllCityNames() {
+        List<String> cityList = factory.openSession().createQuery("SELECT CityName FROM City", String.class)
+                .getResultList();
+        return cityList;
     }
 
     @FXML
@@ -122,16 +131,17 @@ public class CitiesController {
 
             t = session.beginTransaction();
             Population population = new Population();
-            query = session.createQuery("SELECT Id FROM City WHERE CityName = :cityName");
+/*            query = session.createQuery("SELECT Id FROM City WHERE CityName = :cityName");
             query.setParameter("cityName", tfCityName.getText());
-            query.setMaxResults(1);
-            population.CityId = (int) query.getSingleResult();
-            population.city = city;
+            query.setMaxResults(1);*/
+            population.cityForPopulation = city;
+            population.CityId = city.Id;
             population.Year = Year.now();
             population.TotalPop = numPopulation;
             population.Women = numWomen;
             session.persist(population);
             t.commit();
+            session.close();
             return "";
         } catch (Exception e) {
             return e.getMessage();
@@ -167,7 +177,9 @@ public class CitiesController {
         query = session.createQuery("SELECT Id FROM County WHERE CountyName = :countyName");
         query.setParameter("countyName", countyName);
         query.setMaxResults(1);
-        return (int) query.getSingleResult();
+        int result =(int) query.getSingleResult();
+        session.close();
+        return result;
     }
 
     @FXML
@@ -178,7 +190,9 @@ public class CitiesController {
         query = session.createQuery("SELECT CountyName FROM County WHERE Id = :countyId");
         query.setParameter("countyId", countyId);
         query.setMaxResults(1);
-        return (String) query.getSingleResult();
+        String result = (String) query.getSingleResult();
+        session.close();
+        return result;
     }
 
     @FXML
@@ -222,6 +236,7 @@ public class CitiesController {
         }
         System.out.println();
         t.commit();
+        session.close();
     }
 
     @FXML
@@ -230,5 +245,77 @@ public class CitiesController {
 
     @FXML
     protected void menuDeleteCityClick() {
+        DeleteElements();
+        cbDelCity.setItems(FXCollections.observableList(getAllCityNames()));
+        lbTitle.setText("Város törlése");
+        gpDeleteCity.setVisible(true);
+        gpDeleteCity.setManaged(true);
+    }
+
+    @FXML
+    public void btDeleteCityClick(ActionEvent actionEvent) {
+        String cityNameToDelete = (String) cbDelCity.getValue();
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Törlés megerősítése");
+        alert.setHeaderText("%s véglegesen törlésre kerül a \"varos\" táblából."
+                .formatted(cityNameToDelete));
+        alert.setContentText("Biztosan folytatja?");
+        Optional<ButtonType> result = alert.showAndWait();
+        String msg;
+        if (result.get() == ButtonType.OK) {
+            if (DeleteCity(cityNameToDelete)) {
+                msg = "Város törölve az adatbázisból.";
+            } else {
+                msg = "Törlés megszakítva.";
+            }
+            DeleteElements();
+            cbDelCity.setItems(FXCollections.observableList(getAllCityNames()));
+            lbTitle.setVisible(true);
+            lbTitle.setManaged(true);
+            lbTitle.setText(msg);
+            gpDeleteCity.setVisible(true);
+            gpDeleteCity.setManaged(true);
+        } else {
+            Alert info = new Alert(Alert.AlertType.INFORMATION);
+            info.setTitle("Megszakítás");
+            info.setHeaderText(null);
+            info.setContentText("Törlés megszakítva");
+            info.showAndWait();
+        }
+    }
+
+    @FXML
+    private boolean DeleteCity(String cityName) {
+        try {
+            Session session = factory.openSession();
+            Transaction t = session.beginTransaction();
+            List<City> cityList = session.createQuery("FROM City WHERE CityName = :cityName", City.class)
+                    .setParameter("cityName", cityName).getResultList();
+            if (cityList.isEmpty()) {
+                Alert warningAlert = new Alert(Alert.AlertType.WARNING);
+                warningAlert.setTitle("Warning");
+                warningAlert.setHeaderText("A törlés nem sikerült");
+                warningAlert.setContentText("Az adatbázisban nem létezik %s nevű város".formatted(cityName));
+                warningAlert.showAndWait();
+                return false;
+            }
+            Integer cityId = cityList.get(0).Id;
+            Query query;
+            query = session.createQuery("DELETE FROM City WHERE CityName = :cityName")
+                    .setParameter("cityName", cityName);
+            query.executeUpdate();
+            query = session.createQuery("DELETE FROM Population WHERE CityId = :cityId")
+                    .setParameter("cityId", cityId);
+            query.executeUpdate();
+            session.close();
+            return true;
+        } catch (Exception e) {
+            Alert errAlert = new Alert(Alert.AlertType.ERROR);
+            errAlert.setTitle("Error Dialog");
+            errAlert.setHeaderText("The following error occured:");
+            errAlert.setContentText(e.getMessage());
+            errAlert.showAndWait();
+            return false;
+        }
     }
 }
