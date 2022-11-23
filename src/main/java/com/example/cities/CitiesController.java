@@ -21,12 +21,14 @@ import java.util.*;
 public class CitiesController {
     SessionFactory factory;
     @FXML private Label lbTitle, lbWrongNumFormat, lbWrongNumFormatWomen;
-    @FXML private GridPane gpAddCity, gpDeleteCity;
-    @FXML private TextField tfCityName, tfPopulation, tfWomen;
-    @FXML private ComboBox cbCounty, cbDelCity;
-    @FXML private ToggleGroup groupCountyCapital, groupCountyRights;
+    @FXML private GridPane gpAddCity, gpDeleteCity, gpUser;
+    @FXML private TextField tfCityName, tfPopulation, tfWomen, tfUserName, tfUserEmail;
+    @FXML private ComboBox cbCounty, cbDelCity, cbSelectUser;
+    @FXML private ToggleGroup groupCountyCapital, groupCountyRights, groupStatuses, groupGenders;
     @FXML private RadioButton rbCountyCapitalYes, rbCountyCapitalNo;
     @FXML private RadioButton rbCountyRightsYes, rbCountyRightsNo;
+    @FXML public RadioButton rbGenderMale, rbGenderFemale, rbStatusActive, rbStatusInactive;
+    @FXML public Button btUpdateUser, btDeleteUser, btAddUser;
     @FXML private TableView tvCities, tvPersons;
     @FXML private TableColumn<City, String> IdCol;
     @FXML private TableColumn<City, String> NameCol;
@@ -34,7 +36,7 @@ public class CitiesController {
     @FXML private TableColumn<City, String> CountyCapitalCol;
     @FXML private TableColumn<City, String> CountyRightsCol;
     @FXML private TableColumn<City, String> MostRecentPopulationCol;
-    @FXML private TableColumn<Person, String> PersonIdCol, PersonNameCol, PersonEmailCol, PersonGenderCol, PersonStatusCol;
+    @FXML private TableColumn<User, String> UserIdCol, UserNameCol, UserEmailCol, UserGenderCol, UserStatusCol;
 
     @FXML
     void initialize() {
@@ -59,16 +61,17 @@ public class CitiesController {
 
     @FXML
     void DeleteElements() {
-        lbTitle.setVisible(false);
-        lbTitle.setManaged(false);
-        gpAddCity.setVisible(false);
-        gpAddCity.setManaged(false);
-        gpDeleteCity.setVisible(false);
-        gpDeleteCity.setManaged(false);
-        tvCities.setVisible(false);
-        tvCities.setManaged(false);
-        tvPersons.setVisible(false);
-        tvPersons.setManaged(false);
+        lbTitle.setVisible(false); lbTitle.setManaged(false);
+        gpAddCity.setVisible(false); gpAddCity.setManaged(false);
+        gpDeleteCity.setVisible(false); gpDeleteCity.setManaged(false);
+        gpUser.setVisible(false); gpUser.setManaged(false);
+        tfCityName.setText(""); tfPopulation.setText(""); tfWomen.setText("");
+        tvCities.setVisible(false); tvCities.setManaged(false);
+        tvPersons.setVisible(false); tvPersons.setManaged(false);
+        tfUserName.setDisable(false); tfUserEmail.setDisable(false);
+        tfUserName.setText(""); tfUserEmail.setText("");
+        rbGenderMale.setDisable(false); rbGenderFemale.setDisable(false);
+        rbStatusActive.setDisable(false); rbStatusInactive.setDisable(false);
     }
 
     @FXML
@@ -179,7 +182,7 @@ public class CitiesController {
         String addResult = AddCity();
         lbTitle.setVisible(true);
         lbTitle.setManaged(true);
-        if (addResult == "") {
+        if (Objects.equals(addResult, "")) {
             DeleteElements();
             lbTitle.setVisible(true);
             lbTitle.setManaged(true);
@@ -264,7 +267,7 @@ public class CitiesController {
             if (DeleteCity(cityNameToDelete)) {
                 msg = "Város törölve az adatbázisból.";
             } else {
-                msg = "Törlés megszakítva.";
+                msg = "Hiba a törlés közben.";
             }
             DeleteElements();
             cbDelCity.setItems(FXCollections.observableList(getAllCityNames()));
@@ -317,46 +320,75 @@ public class CitiesController {
         }
     }
 
-    public void menuCreateGoRestClick() throws IOException {}
+    public void menuCreateGoRestClick() throws IOException {
+        DeleteElements();
+        gpUser.setVisible(true); gpUser.setManaged(true);
+        cbSelectUser.setVisible(false); cbSelectUser.setManaged(false);
+        btAddUser.setVisible(true); btAddUser.setManaged(true);
+        btUpdateUser.setVisible(false); btUpdateUser.setManaged(false);
+        btDeleteUser.setVisible(false); btDeleteUser.setManaged(false);
+    }
+    public void btAddUserClick(ActionEvent actionEvent) throws IOException {
+        String gender = ((RadioButton) groupGenders.getSelectedToggle()).getText();
+        String status = ((RadioButton) groupStatuses.getSelectedToggle()).getText();
+        String resp = GoRestClient.POST(tfUserName.getText(), gender, tfUserEmail.getText(), status);
+        if (resp.equals("Hiba!")) {
+            lbTitle.setText(resp); lbTitle.setVisible(true); lbTitle.setManaged(true);
+        } else {
+            JsonObject jsonObject = new JsonParser().parse(resp).getAsJsonObject().get("data").getAsJsonObject();
+
+            Alert successMsg = new Alert(Alert.AlertType.CONFIRMATION);
+            successMsg.setTitle("Sikeres mentés");
+            successMsg.setHeaderText("A felhasználót sikeresen elmentettük az adatbázisba");
+            successMsg.setContentText("Név: %s\nEmail: %s\nNem: %s\nStátusz: %s"
+                    .formatted(jsonObject.get("id"), jsonObject.get("name"), jsonObject.get("email"), jsonObject.get("status")));
+            successMsg.showAndWait();
+            menuReadGoRestClick();
+        }
+    }
+
+    public List<User> getAllUsersInList(String jsonString) {
+        JsonObject jsonObject = new JsonParser().parse(jsonString).getAsJsonObject();
+        JsonArray jsonArray = jsonObject.get("data").getAsJsonArray();
+        List<User> userList = new ArrayList<>();
+        for (JsonElement jsonItem :
+                jsonArray) {
+            User user = new User();
+            user.setId(Integer.parseInt(jsonItem.getAsJsonObject().get("id").toString()));
+            user.setName(jsonItem.getAsJsonObject().get("name").toString());
+            user.setEmail(jsonItem.getAsJsonObject().get("email").toString());
+            user.setGender(jsonItem.getAsJsonObject().get("gender").toString());
+            user.setStatus(jsonItem.getAsJsonObject().get("status").toString());
+            userList.add(user);
+        }
+        return userList;
+    }
     public void menuReadGoRestClick() throws IOException {
         DeleteElements();
         String resp = GoRestClient.GET(null);
         String title = "";
-        if (resp == "Hiba!") {
+        if (resp.equals("Hiba!")) {
             title = resp;
         } else {
-            JsonObject jsonObject = new JsonParser().parse(resp).getAsJsonObject();
-            JsonArray jsonArray = jsonObject.get("data").getAsJsonArray();
-            List<Person> personList = new ArrayList<>();
-            for (JsonElement jsonItem :
-                    jsonArray) {
-                Person person = new Person();
-                person.setId(Integer.parseInt(jsonItem.getAsJsonObject().get("id").toString()));
-                person.setName(jsonItem.getAsJsonObject().get("name").toString());
-                person.setEmail(jsonItem.getAsJsonObject().get("email").toString());
-                person.setGender(jsonItem.getAsJsonObject().get("gender").toString());
-                person.setStatus(jsonItem.getAsJsonObject().get("status").toString());
-                personList.add(person);
-            }
+            List<User> userList = getAllUsersInList(resp);
             title = "A GoRest API users lekérdezés eredménye:";
             tvPersons.setVisible(true);
             tvPersons.setManaged(true);
             tvPersons.getColumns().removeAll(tvPersons.getColumns());
-            PersonIdCol = new TableColumn<>("Id");
-            PersonNameCol = new TableColumn<>("Name");
-            PersonEmailCol = new TableColumn<>("E-mail");
-            PersonGenderCol = new TableColumn<>("Gender");
-            PersonStatusCol = new TableColumn<>("Status");
-            tvPersons.getColumns().addAll(PersonIdCol, PersonNameCol, PersonEmailCol, PersonGenderCol, PersonStatusCol);
-            PersonIdCol.setCellValueFactory(new PropertyValueFactory<>("Id"));
-            PersonNameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
-            PersonEmailCol.setCellValueFactory(new PropertyValueFactory<>("Email"));
-            PersonGenderCol.setCellValueFactory(new PropertyValueFactory<>("Gender"));
-            PersonStatusCol.setCellValueFactory(new PropertyValueFactory<>("Status"));
+            UserIdCol = new TableColumn<>("Id");
+            UserNameCol = new TableColumn<>("Name");
+            UserEmailCol = new TableColumn<>("E-mail");
+            UserGenderCol = new TableColumn<>("Gender");
+            UserStatusCol = new TableColumn<>("Status");
+            tvPersons.getColumns().addAll(UserIdCol, UserNameCol, UserEmailCol, UserGenderCol, UserStatusCol);
+            UserIdCol.setCellValueFactory(new PropertyValueFactory<>("Id"));
+            UserNameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
+            UserEmailCol.setCellValueFactory(new PropertyValueFactory<>("Email"));
+            UserGenderCol.setCellValueFactory(new PropertyValueFactory<>("Gender"));
+            UserStatusCol.setCellValueFactory(new PropertyValueFactory<>("Status"));
             tvPersons.getItems().clear();
-            for (Person person :
-                    personList) {
-                tvPersons.getItems().add(person);
+            for (User user : userList) {
+                tvPersons.getItems().add(user);
             }
         }
         lbTitle.setText(title);
@@ -364,7 +396,143 @@ public class CitiesController {
         lbTitle.setManaged(true);
     }
 
-    public void menuUpdateGoRestClick() throws IOException {}
+    public void fillUserComboBox() throws IOException {
+        String resp = GoRestClient.GET(null);
+        List<User> userList = getAllUsersInList(resp);
+        List<String> userIdsAndNames = new ArrayList<>();
+        for (User user : userList) {
+            userIdsAndNames.add("%s - %s".formatted(user.getId(), StripJsonFromQuotes(user.getName())));
+        }
+        cbSelectUser.setItems(FXCollections.observableList(userIdsAndNames));
+        cbSelectUser.setVisible(true); cbSelectUser.setManaged(true);
+    }
 
-    public void menuDeleteGoRestClick() throws IOException {}
+    private String StripJsonFromQuotes(String str) {
+        return str.substring(1, str.length() - 1);
+    }
+    public void cbUserSelectAction(ActionEvent actionEvent) throws IOException {
+        String id = (String) cbSelectUser.getValue();
+        if (id != null) {
+            id = id.substring(0, id.indexOf(" "));
+            String resp = GoRestClient.GET(id);
+            if (resp.equals("Hiba!")) {
+                lbTitle.setText("Hiba!");
+                lbTitle.setVisible(true); lbTitle.setManaged(true);
+            } else {
+                JsonObject jsonObject = new JsonParser().parse(resp).getAsJsonObject().get("data").getAsJsonObject();
+                tfUserName.setText(StripJsonFromQuotes(String.valueOf(jsonObject.get("name"))));
+                tfUserEmail.setText(StripJsonFromQuotes(String.valueOf(jsonObject.get("email"))));
+                if (StripJsonFromQuotes(String.valueOf(jsonObject.get("gender"))).equals("male")) {
+                    rbGenderMale.setSelected(true);
+                } else {
+                    rbGenderFemale.setSelected(true);
+                }
+                if (StripJsonFromQuotes(String.valueOf(jsonObject.get("status"))).equals("active")) {
+                    rbStatusActive.setSelected(true);
+                } else {
+                    rbStatusInactive.setSelected(true);
+                }
+            }
+        }
+    }
+
+    public void menuUpdateGoRestClick() throws IOException {
+        DeleteElements();
+        gpUser.setVisible(true); gpUser.setManaged(true);
+        fillUserComboBox();
+        btAddUser.setVisible(false); btAddUser.setManaged(false);
+        btUpdateUser.setVisible(true); btUpdateUser.setManaged(true);
+        btDeleteUser.setVisible(false); btDeleteUser.setManaged(false);
+    }
+    public void btUpdateUserClick() throws IOException {
+        String id = (String) cbSelectUser.getValue();
+        if (id != null) {
+            id = id.substring(0, id.indexOf(" "));
+            String resp = GoRestClient.GET(id);
+            if (!resp.equals("Hiba!")) {
+                JsonObject jsonObject = new JsonParser().parse(resp).getAsJsonObject().get("data").getAsJsonObject();
+                User user = new User();
+                user.setName(StripJsonFromQuotes(String.valueOf(jsonObject.get("name"))));
+                user.setEmail(StripJsonFromQuotes(String.valueOf(jsonObject.get("email"))));
+                user.setGender(StripJsonFromQuotes(String.valueOf(jsonObject.get("gender"))));
+                user.setStatus(StripJsonFromQuotes(String.valueOf(jsonObject.get("status"))));
+
+                String newName = tfUserName.getText();
+                if (newName.equals("")) newName.equals(user.getName());
+                String newEmail = tfUserEmail.getText();
+                if (newEmail.equals("")) newEmail.equals(user.getEmail());
+                String newGender;
+                RadioButton selectedGender = (RadioButton) groupGenders.getSelectedToggle();
+                if (selectedGender.getText().equals("male")) {
+                    newGender = "male";
+                } else {
+                    newGender = "female";
+                }
+                String newStatus;
+                RadioButton selectedStatus = (RadioButton) groupStatuses.getSelectedToggle();
+                if (selectedStatus.getText().equals("active")) {
+                    newStatus = "active";
+                } else {
+                    newStatus = "inactive";
+                }
+                String result = GoRestClient.PUT(id, newName, newGender, newEmail, newStatus);
+                if (result.equals("Hiba!")) {
+                    lbTitle.setText(resp); lbTitle.setVisible(true); lbTitle.setManaged(true);
+                } else {
+                    JsonObject jsonObject2 = new JsonParser().parse(result).getAsJsonObject().get("data").getAsJsonObject();
+
+                    Alert successMsg = new Alert(Alert.AlertType.CONFIRMATION);
+                    successMsg.setTitle("Sikeres módosítás");
+                    successMsg.setHeaderText("Felhasználó sikeresen módosítva");
+                    successMsg.setContentText("Név: %s\nEmail: %s\nNem: %s\nStátusz: %s"
+                            .formatted(jsonObject2.get("name"), jsonObject.get("email"),
+                                    jsonObject2.get("gender"), jsonObject2.get("status")
+                            ));
+                    successMsg.showAndWait();
+                    menuReadGoRestClick();
+                }
+            }
+        }
+    }
+
+    public void menuDeleteGoRestClick() throws IOException {
+        DeleteElements();
+        gpUser.setVisible(true); gpUser.setManaged(true);
+        fillUserComboBox();
+        btAddUser.setVisible(false); btAddUser.setManaged(false);
+        btUpdateUser.setVisible(false); btUpdateUser.setManaged(false);
+        btDeleteUser.setVisible(true); btDeleteUser.setManaged(true);
+        tfUserName.setDisable(true); tfUserEmail.setDisable(true);
+        rbGenderMale.setDisable(true); rbGenderFemale.setDisable(true);
+        rbStatusActive.setDisable(true); rbStatusInactive.setDisable(true);
+    }
+    public void btDeleteUserClick() throws IOException {
+        String id = (String) cbSelectUser.getValue();
+        if (id != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Törlés megerősítése");
+            alert.setHeaderText("A %s ID-val rendelkező felhasználó véglegesen törlésre kerül.".formatted(id));
+            alert.setContentText("Biztosan folytatja?");
+            Optional<ButtonType> result = alert.showAndWait();
+            String msg;
+            if (result.get() == ButtonType.OK) {
+                if (GoRestClient.DELETE(id).equals("Hiba!")) {
+                    lbTitle.setText("Hiba a törlés közben."); lbTitle.setVisible(true); lbTitle.setManaged(true);
+                } else {
+                    Alert successMsg = new Alert(Alert.AlertType.CONFIRMATION);
+                    successMsg.setTitle("Sikeres törlés");
+                    successMsg.setHeaderText(null);
+                    successMsg.setContentText("Felhasználó sikeresen törölve");
+                    successMsg.showAndWait();
+                    menuReadGoRestClick();
+                }
+            } else {
+                Alert info = new Alert(Alert.AlertType.INFORMATION);
+                info.setTitle("Megszakítás");
+                info.setHeaderText(null);
+                info.setContentText("Törlés megszakítva");
+                info.showAndWait();
+            }
+        }
+    }
 }
