@@ -43,6 +43,20 @@ public class CitiesController {
     }
 
     @FXML
+    List<String> getAllCountyNames() {
+        List<String> countyList = factory.openSession().createQuery("SELECT CountyName FROM County", String.class)
+                .getResultList();
+        return countyList;
+    }
+
+    @FXML
+    List<String> getAllCityNames() {
+        List<String> cityList = factory.openSession().createQuery("SELECT CityName FROM City", String.class)
+                .getResultList();
+        return cityList;
+    }
+
+    @FXML
     void DeleteElements() {
         lbTitle.setVisible(false);
         lbTitle.setManaged(false);
@@ -55,26 +69,38 @@ public class CitiesController {
     }
 
     @FXML
+    public int getCountyIdByName(String countyName) {
+        Session session = factory.openSession();
+        Transaction t = session.beginTransaction();
+        Query query;
+        query = session.createQuery("SELECT Id FROM County WHERE CountyName = :countyName");
+        query.setParameter("countyName", countyName);
+        query.setMaxResults(1);
+        int result =(int) query.getSingleResult();
+        session.close();
+        return result;
+    }
+
+    @FXML
+    public String getCountyNameById(int countyId) {
+        Session session = factory.openSession();
+        Transaction t = session.beginTransaction();
+        Query query;
+        query = session.createQuery("SELECT CountyName FROM County WHERE Id = :countyId");
+        query.setParameter("countyId", countyId);
+        query.setMaxResults(1);
+        String result = (String) query.getSingleResult();
+        session.close();
+        return result;
+    }
+
+    @FXML
     void menuCreateCityClick() {
         DeleteElements();
         cbCounty.setItems(FXCollections.observableList(getAllCountyNames()));
         lbTitle.setText("Város hozzáadása");
         gpAddCity.setVisible(true);
         gpAddCity.setManaged(true);
-    }
-
-    @FXML
-    List<String> getAllCountyNames() {
-        List<String> countyList = factory.openSession().createQuery("SELECT CountyName FROM County", String.class)
-                .getResultList();
-        return countyList;
-    }
-
-    @FXML
-    List<String> getAllCityNames() {
-        List<String> cityList = factory.openSession().createQuery("SELECT CityName FROM City", String.class)
-                .getResultList();
-        return cityList;
     }
 
     @FXML
@@ -167,32 +193,6 @@ public class CitiesController {
                 lbWrongNumFormatWomen.setVisible(false);
             }
         }
-    }
-
-    @FXML
-    public int getCountyIdByName(String countyName) {
-        Session session = factory.openSession();
-        Transaction t = session.beginTransaction();
-        Query query;
-        query = session.createQuery("SELECT Id FROM County WHERE CountyName = :countyName");
-        query.setParameter("countyName", countyName);
-        query.setMaxResults(1);
-        int result =(int) query.getSingleResult();
-        session.close();
-        return result;
-    }
-
-    @FXML
-    public String getCountyNameById(int countyId) {
-        Session session = factory.openSession();
-        Transaction t = session.beginTransaction();
-        Query query;
-        query = session.createQuery("SELECT CountyName FROM County WHERE Id = :countyId");
-        query.setParameter("countyId", countyId);
-        query.setMaxResults(1);
-        String result = (String) query.getSingleResult();
-        session.close();
-        return result;
     }
 
     @FXML
