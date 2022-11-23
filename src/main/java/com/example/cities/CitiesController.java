@@ -1,5 +1,6 @@
 package com.example.cities;
 
+import com.google.gson.*;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,10 +14,9 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
+import java.io.IOException;
 import java.time.Year;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class CitiesController {
     SessionFactory factory;
@@ -27,13 +27,14 @@ public class CitiesController {
     @FXML private ToggleGroup groupCountyCapital, groupCountyRights;
     @FXML private RadioButton rbCountyCapitalYes, rbCountyCapitalNo;
     @FXML private RadioButton rbCountyRightsYes, rbCountyRightsNo;
-    @FXML private TableView tv;
+    @FXML private TableView tvCities, tvPersons;
     @FXML private TableColumn<City, String> IdCol;
     @FXML private TableColumn<City, String> NameCol;
     @FXML private TableColumn<County, String> CountyCol;
     @FXML private TableColumn<City, String> CountyCapitalCol;
     @FXML private TableColumn<City, String> CountyRightsCol;
     @FXML private TableColumn<City, String> MostRecentPopulationCol;
+    @FXML private TableColumn<Person, String> PersonIdCol, PersonNameCol, PersonEmailCol, PersonGenderCol, PersonStatusCol;
 
     @FXML
     void initialize() {
@@ -64,8 +65,10 @@ public class CitiesController {
         gpAddCity.setManaged(false);
         gpDeleteCity.setVisible(false);
         gpDeleteCity.setManaged(false);
-        tv.setVisible(false);
-        tv.setManaged(false);
+        tvCities.setVisible(false);
+        tvCities.setManaged(false);
+        tvPersons.setVisible(false);
+        tvPersons.setManaged(false);
     }
 
     @FXML
@@ -157,9 +160,6 @@ public class CitiesController {
 
             t = session.beginTransaction();
             Population population = new Population();
-/*            query = session.createQuery("SELECT Id FROM City WHERE CityName = :cityName");
-            query.setParameter("cityName", tfCityName.getText());
-            query.setMaxResults(1);*/
             population.cityForPopulation = city;
             population.CityId = city.Id;
             population.Year = Year.now();
@@ -198,27 +198,25 @@ public class CitiesController {
     @FXML
     protected void menuReadCitiesClick() {
         DeleteElements();
-        tv.setVisible(true);
-        tv.setManaged(true);
-        tv.getColumns().removeAll(tv.getColumns());
+        tvCities.setVisible(true);
+        tvCities.setManaged(true);
+        tvCities.getColumns().removeAll(tvCities.getColumns());
         IdCol = new TableColumn<>("Id");
         NameCol = new TableColumn<>("Település");
         CountyCol = new TableColumn<>("Megye");
         CountyCapitalCol = new TableColumn<>("Megyeszékhely");
         CountyRightsCol = new TableColumn<>("Megyei jogú város");
         MostRecentPopulationCol = new TableColumn<>("Legfrissebb népességi adat");
-        tv.getColumns().addAll(IdCol, NameCol, CountyCol, CountyCapitalCol, CountyRightsCol, MostRecentPopulationCol);
+        tvCities.getColumns().addAll(IdCol, NameCol, CountyCol, CountyCapitalCol, CountyRightsCol, MostRecentPopulationCol);
         IdCol.setCellValueFactory(new PropertyValueFactory<>("Id"));
         NameCol.setCellValueFactory(new PropertyValueFactory<>("CityName"));
         CountyCol.setCellValueFactory(new PropertyValueFactory<>("CountyName"));
         CountyCapitalCol.setCellValueFactory(new PropertyValueFactory<>("CountyCapital"));
         CountyRightsCol.setCellValueFactory(new PropertyValueFactory<>("CountyRights"));
         MostRecentPopulationCol.setCellValueFactory(new PropertyValueFactory<>("MostRecentPopulation"));
-        tv.getItems().clear();
+        tvCities.getItems().clear();
         Session session = factory.openSession();
         Transaction t = session.beginTransaction();
-        Query query;
-//        query = session.createQuery("SELECT city, county FROM City city JOIN County county ON county.Id = city.CountyId ORDER BY city.Id");
         List<City> results = session.createQuery("FROM City", City.class).getResultList();
 
         for (City resultRow : results) {
@@ -232,7 +230,7 @@ public class CitiesController {
             else detailedCityView.CountyRights = "nem";
             detailedCityView.CityPopulation = resultRow.populationList;
             detailedCityView.MostRecentPopulation = detailedCityView.FindMostRecentPopulation();
-            tv.getItems().add(detailedCityView);
+            tvCities.getItems().add(detailedCityView);
         }
         System.out.println();
         t.commit();
@@ -318,4 +316,55 @@ public class CitiesController {
             return false;
         }
     }
+
+    public void menuCreateGoRestClick() throws IOException {}
+    public void menuReadGoRestClick() throws IOException {
+        DeleteElements();
+        String resp = GoRestClient.GET(null);
+        String title = "";
+        if (resp == "Hiba!") {
+            title = resp;
+        } else {
+            JsonObject jsonObject = new JsonParser().parse(resp).getAsJsonObject();
+            JsonArray jsonArray = jsonObject.get("data").getAsJsonArray();
+            List<Person> personList = new ArrayList<>();
+            for (JsonElement jsonItem :
+                    jsonArray) {
+                Person person = new Person();
+                person.setId(Integer.parseInt(jsonItem.getAsJsonObject().get("id").toString()));
+                person.setName(jsonItem.getAsJsonObject().get("name").toString());
+                person.setEmail(jsonItem.getAsJsonObject().get("email").toString());
+                person.setGender(jsonItem.getAsJsonObject().get("gender").toString());
+                person.setStatus(jsonItem.getAsJsonObject().get("status").toString());
+                personList.add(person);
+            }
+            title = "A GoRest API users lekérdezés eredménye:";
+            tvPersons.setVisible(true);
+            tvPersons.setManaged(true);
+            tvPersons.getColumns().removeAll(tvPersons.getColumns());
+            PersonIdCol = new TableColumn<>("Id");
+            PersonNameCol = new TableColumn<>("Name");
+            PersonEmailCol = new TableColumn<>("E-mail");
+            PersonGenderCol = new TableColumn<>("Gender");
+            PersonStatusCol = new TableColumn<>("Status");
+            tvPersons.getColumns().addAll(PersonIdCol, PersonNameCol, PersonEmailCol, PersonGenderCol, PersonStatusCol);
+            PersonIdCol.setCellValueFactory(new PropertyValueFactory<>("Id"));
+            PersonNameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
+            PersonEmailCol.setCellValueFactory(new PropertyValueFactory<>("Email"));
+            PersonGenderCol.setCellValueFactory(new PropertyValueFactory<>("Gender"));
+            PersonStatusCol.setCellValueFactory(new PropertyValueFactory<>("Status"));
+            tvPersons.getItems().clear();
+            for (Person person :
+                    personList) {
+                tvPersons.getItems().add(person);
+            }
+        }
+        lbTitle.setText(title);
+        lbTitle.setVisible(true);
+        lbTitle.setManaged(true);
+    }
+
+    public void menuUpdateGoRestClick() throws IOException {}
+
+    public void menuDeleteGoRestClick() throws IOException {}
 }

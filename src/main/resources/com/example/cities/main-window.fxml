@@ -18,10 +18,10 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Rest1">
                 <items>
-                    <MenuItem mnemonicParsing="false" text="Létrehoz" />
-                    <MenuItem mnemonicParsing="false" text="Olvas" />
-                    <MenuItem mnemonicParsing="false" text="Módosít" />
-                    <MenuItem mnemonicParsing="false" text="Töröl" />
+                    <MenuItem mnemonicParsing="false" onAction="#menuCreateGoRestClick" text="Létrehoz" />
+                    <MenuItem mnemonicParsing="false" onAction="#menuReadGoRestClick" text="Olvas" />
+                    <MenuItem mnemonicParsing="false" onAction="#menuUpdateGoRestClick" text="Módosít" />
+                    <MenuItem mnemonicParsing="false" onAction="#menuDeleteGoRestClick" text="Töröl" />
                 </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Rest2">
@@ -129,7 +129,16 @@
             </GridPane.margin></Button>
         </children>
     </GridPane>
-    <TableView fx:id="tv" prefHeight="314.0" prefWidth="500.0" />
+    <TableView fx:id="tvPersons" prefHeight="312.0" prefWidth="500.0">
+        <columns>
+            <TableColumn prefWidth="50.0" text="Id" />
+            <TableColumn prefWidth="124.0" text="Name" />
+            <TableColumn prefWidth="187.0" text="E-mail" />
+            <TableColumn prefWidth="66.0" text="Gender" />
+            <TableColumn prefWidth="72.0" text="Status" />
+        </columns>
+    </TableView>
+    <TableView fx:id="tvCities" prefHeight="314.0" prefWidth="500.0" />
     <padding>
         <Insets bottom="20.0" />
     </padding>
