@@ -1,34 +1,42 @@
 package com.example.cities;
 
 import com.google.gson.*;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
-
 import java.io.IOException;
 import java.time.Year;
 import java.util.*;
 
+
 public class CitiesController {
     SessionFactory factory;
-    @FXML private Label lbTitle, lbWrongNumFormat, lbWrongNumFormatWomen;
-    @FXML private GridPane gpAddCity, gpDeleteCity, gpUser;
+    Timer tr = new Timer() ;
+    Timer tr1 = new Timer() ;
+    boolean tFlag = false;
+    int c1 = 0;
+    int c2 = 0;
+    @FXML private Label lbTitle, lbWrongNumFormat, lbWrongNumFormatWomen, lbFirst, lbSecond;
+    @FXML private GridPane gpAddCity, gpDeleteCity, gpUser, gpParallel;
     @FXML private TextField tfCityName, tfPopulation, tfWomen, tfUserName, tfUserEmail;
     @FXML private ComboBox cbCounty, cbDelCity, cbSelectUser;
     @FXML private ToggleGroup groupCountyCapital, groupCountyRights, groupStatuses, groupGenders;
     @FXML private RadioButton rbCountyCapitalYes, rbCountyCapitalNo;
     @FXML private RadioButton rbCountyRightsYes, rbCountyRightsNo;
     @FXML public RadioButton rbGenderMale, rbGenderFemale, rbStatusActive, rbStatusInactive;
-    @FXML public Button btUpdateUser, btDeleteUser, btAddUser;
+    @FXML public Button btUpdateUser, btDeleteUser, btAddUser, btStartblink, btStopblink;
     @FXML private TableView tvCities, tvPersons;
     @FXML private TableColumn<City, String> IdCol;
     @FXML private TableColumn<City, String> NameCol;
@@ -62,6 +70,9 @@ public class CitiesController {
     @FXML
     void DeleteElements() {
         lbTitle.setVisible(false); lbTitle.setManaged(false);
+        lbFirst.setVisible(false); lbSecond.setVisible(false);
+        btStartblink.setVisible(false);
+        btStopblink.setVisible(false);
         gpAddCity.setVisible(false); gpAddCity.setManaged(false);
         gpDeleteCity.setVisible(false); gpDeleteCity.setManaged(false);
         gpUser.setVisible(false); gpUser.setManaged(false);
@@ -535,4 +546,92 @@ public class CitiesController {
             }
         }
     }
+
+
+    @FXML
+    public void l1_write()
+    {
+        lbFirst.setText("Blink no. " + c1);
+    }
+    @FXML
+    public void l2_write()
+    {
+        lbSecond.setText("Blink no. " +  c2);
+    }
+    @FXML
+    public void menuParallelClick() throws IOException {
+        DeleteElements();
+        gpParallel.setVisible(true); gpParallel.setManaged(true);
+        lbFirst.setVisible(true);
+        lbSecond.setVisible(true);
+        lbFirst.setText("Press the button! 1 ");
+        lbSecond.setText("Press the button! 2 ");
+        btStartblink.setVisible(true); btStartblink.setManaged(true);
+        btStopblink.setVisible(true); btStopblink.setManaged(true);
+
+    }
+
+    private class Runner extends Thread {
+        @FXML
+        @Override
+        public void run() {
+
+            while (tFlag) {
+                c1++;
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        l1_write();
+                    }
+                });
+                try {
+
+                    Thread.sleep(1000);  // Wait two seconds between redraws.
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+    }
+
+    private class Runner2 extends Thread {
+        @FXML
+        @Override
+        public void run() {
+
+            while (tFlag) {
+                c2++;
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        l2_write();
+                    }
+                });
+                try {
+
+                    Thread.sleep(2000);  // Wait two seconds between redraws.
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+    }
+    Runner runner = new Runner();
+    Runner2 runner2 = new Runner2();
+    @FXML
+    void btStartblinkClick() {
+        lbFirst.setText("asjkfhlak");
+        tFlag = true;
+        // Set the signal before starting the thread!
+        runner.start();
+        runner2.start();
+
+    }
+    @FXML
+    void btStopblinkClick() {
+
+        tFlag = false;
+
+    }
+
+
+
 }

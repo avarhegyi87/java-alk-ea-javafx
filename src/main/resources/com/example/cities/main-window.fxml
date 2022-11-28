@@ -48,7 +48,7 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Egyéb">
                 <items>
-                    <MenuItem mnemonicParsing="false" text="Párhuzamos" />
+                    <MenuItem mnemonicParsing="false" onAction="#menuParallelClick" text="Párhuzamos" />
                     <MenuItem mnemonicParsing="false" text="Stream" />
                 </items>
             </Menu>
@@ -163,6 +163,33 @@
             <Button fx:id="btUpdateUser" mnemonicParsing="false" onAction="#btUpdateUserClick" text="Mentés" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
             <Button fx:id="btDeleteUser" mnemonicParsing="false" onAction="#btDeleteUserClick" text="Töröl" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
             <Button fx:id="btAddUser" mnemonicParsing="false" onAction="#btAddUserClick" text="Hozzáad" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
+        </children>
+    </GridPane>
+    <GridPane fx:id="gpParallel" prefHeight="166.0" prefWidth="420.0">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="204.0" minWidth="10.0" prefWidth="135.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="304.0" minWidth="10.0" prefWidth="120.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="429.0" minWidth="10.0" prefWidth="197.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+        <VBox.margin>
+            <Insets left="40.0" right="40.0" />
+        </VBox.margin>
+        <children>
+
+            <Button fx:id="btStopblink" mnemonicParsing="false" minWidth="200" minHeight="60" onAction="#btStopblinkClick" text="Stop" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+            <Button fx:id="btStartblink" mnemonicParsing="false" minWidth="200" minHeight="60" onAction="#btStartblinkClick" text="Start" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+
+            <Label fx:id="lbFirst"  GridPane.rowIndex="1" />
+            <Label fx:id="lbSecond"  GridPane.rowIndex="2" />
+
         </children>
     </GridPane>
     <TableView fx:id="tvPersons" prefWidth="500.0">
