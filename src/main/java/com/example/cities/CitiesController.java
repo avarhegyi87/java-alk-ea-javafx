@@ -12,39 +12,60 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
+import javafx.beans.property.SimpleStringProperty;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 import java.io.IOException;
+import java.sql.*;
 import java.time.Year;
 import java.util.*;
 
 
 public class CitiesController {
     SessionFactory factory;
-    Timer tr = new Timer() ;
-    Timer tr1 = new Timer() ;
+    Timer tr = new Timer();
+    Timer tr1 = new Timer();
+    public List<Mindenegyben> mlist = new ArrayList<>();
     boolean tFlag = false;
     int c1 = 0;
     int c2 = 0;
-    @FXML private Label lbTitle, lbWrongNumFormat, lbWrongNumFormatWomen, lbFirst, lbSecond;
-    @FXML private GridPane gpAddCity, gpDeleteCity, gpUser, gpParallel;
-    @FXML private TextField tfCityName, tfPopulation, tfWomen, tfUserName, tfUserEmail;
-    @FXML private ComboBox cbCounty, cbDelCity, cbSelectUser;
-    @FXML private ToggleGroup groupCountyCapital, groupCountyRights, groupStatuses, groupGenders;
-    @FXML private RadioButton rbCountyCapitalYes, rbCountyCapitalNo;
-    @FXML private RadioButton rbCountyRightsYes, rbCountyRightsNo;
-    @FXML public RadioButton rbGenderMale, rbGenderFemale, rbStatusActive, rbStatusInactive;
-    @FXML public Button btUpdateUser, btDeleteUser, btAddUser, btStartblink, btStopblink;
-    @FXML private TableView tvCities, tvPersons;
-    @FXML private TableColumn<City, String> IdCol;
-    @FXML private TableColumn<City, String> NameCol;
-    @FXML private TableColumn<County, String> CountyCol;
-    @FXML private TableColumn<City, String> CountyCapitalCol;
-    @FXML private TableColumn<City, String> CountyRightsCol;
-    @FXML private TableColumn<City, String> MostRecentPopulationCol;
-    @FXML private TableColumn<User, String> UserIdCol, UserNameCol, UserEmailCol, UserGenderCol, UserStatusCol;
+    @FXML
+    private Label lbTitle, lbWrongNumFormat, lbWrongNumFormatWomen, lbFirst, lbSecond;
+    @FXML
+    private GridPane gpAddCity, gpDeleteCity, gpUser, gpParallel, gpStream;
+    @FXML
+    private TextField tfCityName, tfPopulation, tfWomen, tfUserName, tfUserEmail;
+    @FXML
+    private ComboBox cbCounty, cbDelCity, cbSelectUser, cbMnevek, cbVnevek;
+    @FXML
+    private ToggleGroup groupCountyCapital, groupCountyRights, groupStatuses, groupGenders;
+    @FXML
+    private RadioButton rbCountyCapitalYes, rbCountyCapitalNo;
+    @FXML
+    private RadioButton rbCountyRightsYes, rbCountyRightsNo;
+    @FXML
+    public RadioButton rbGenderMale, rbGenderFemale, rbStatusActive, rbStatusInactive;
+    @FXML
+    public Button btUpdateUser, btDeleteUser, btAddUser, btStartblink, btStopblink, btStartstr;
+    @FXML
+    private TableView tvCities, tvPersons, tvMinden;
+    @FXML
+    private TableColumn<City, String> IdCol;
+    @FXML
+    private TableColumn<City, String> NameCol;
+    @FXML
+    private TableColumn<County, String> CountyCol;
+    @FXML
+    private TableColumn<City, String> CountyCapitalCol;
+    @FXML
+    private TableColumn<City, String> CountyRightsCol;
+    @FXML
+    private TableColumn<City, String> MostRecentPopulationCol;
+    @FXML
+    private TableColumn<User, String> UserIdCol, UserNameCol, UserEmailCol, UserGenderCol, UserStatusCol;
+    @FXML
+    private TableColumn<Mindenegyben, String> mNev, vNev, mSzekh, mJog, datum, lakosok, nLakosok, fLakosok;
 
     @FXML
     void initialize() {
@@ -69,20 +90,42 @@ public class CitiesController {
 
     @FXML
     void DeleteElements() {
-        lbTitle.setVisible(false); lbTitle.setManaged(false);
-        lbFirst.setVisible(false); lbSecond.setVisible(false);
+        lbTitle.setVisible(false);
+        lbTitle.setManaged(false);
+        lbFirst.setVisible(false);
+        lbSecond.setVisible(false);
         btStartblink.setVisible(false);
         btStopblink.setVisible(false);
-        gpAddCity.setVisible(false); gpAddCity.setManaged(false);
-        gpDeleteCity.setVisible(false); gpDeleteCity.setManaged(false);
-        gpUser.setVisible(false); gpUser.setManaged(false);
-        tfCityName.setText(""); tfPopulation.setText(""); tfWomen.setText("");
-        tvCities.setVisible(false); tvCities.setManaged(false);
-        tvPersons.setVisible(false); tvPersons.setManaged(false);
-        tfUserName.setDisable(false); tfUserEmail.setDisable(false);
-        tfUserName.setText(""); tfUserEmail.setText("");
-        rbGenderMale.setDisable(false); rbGenderFemale.setDisable(false);
-        rbStatusActive.setDisable(false); rbStatusInactive.setDisable(false);
+        gpAddCity.setVisible(false);
+        gpAddCity.setManaged(false);
+        gpStream.setVisible(false);
+        gpStream.setManaged(false);
+        gpParallel.setVisible(false);
+        gpParallel.setManaged(false);
+        gpDeleteCity.setVisible(false);
+        gpDeleteCity.setManaged(false);
+        gpUser.setVisible(false);
+        gpUser.setManaged(false);
+        tfCityName.setText("");
+        tfPopulation.setText("");
+        tfWomen.setText("");
+        tvCities.setVisible(false);
+        tvCities.setManaged(false);
+        tvPersons.setVisible(false);
+        tvPersons.setManaged(false);
+        tfUserName.setDisable(false);
+        tfUserEmail.setDisable(false);
+        tfUserName.setText("");
+        tfUserEmail.setText("");
+        rbGenderMale.setDisable(false);
+        rbGenderFemale.setDisable(false);
+        rbStatusActive.setDisable(false);
+        rbStatusInactive.setDisable(false);
+        cbMnevek.setVisible(false);
+        cbVnevek.setVisible(false);
+        btStartstr.setVisible(false);
+        tvMinden.setVisible(false);
+        tvMinden.setManaged(false);
     }
 
     @FXML
@@ -93,7 +136,7 @@ public class CitiesController {
         query = session.createQuery("SELECT Id FROM County WHERE CountyName = :countyName");
         query.setParameter("countyName", countyName);
         query.setMaxResults(1);
-        int result =(int) query.getSingleResult();
+        int result = (int) query.getSingleResult();
         session.close();
         return result;
     }
@@ -160,7 +203,7 @@ public class CitiesController {
                 return "%s megye nem található az adatbázisban".formatted(cbCounty.getValue());
             }
             List<City> cityFound = session.createQuery(
-                    "FROM City WHERE CityName = :cityName AND CountyId = :countyId", City.class)
+                            "FROM City WHERE CityName = :cityName AND CountyId = :countyId", City.class)
                     .setParameter("cityName", tfCityName.getText())
                     .setParameter("countyId", countyId)
                     .getResultList();
@@ -333,18 +376,26 @@ public class CitiesController {
 
     public void menuCreateGoRestClick() throws IOException {
         DeleteElements();
-        gpUser.setVisible(true); gpUser.setManaged(true);
-        cbSelectUser.setVisible(false); cbSelectUser.setManaged(false);
-        btAddUser.setVisible(true); btAddUser.setManaged(true);
-        btUpdateUser.setVisible(false); btUpdateUser.setManaged(false);
-        btDeleteUser.setVisible(false); btDeleteUser.setManaged(false);
+        gpUser.setVisible(true);
+        gpUser.setManaged(true);
+        cbSelectUser.setVisible(false);
+        cbSelectUser.setManaged(false);
+        btAddUser.setVisible(true);
+        btAddUser.setManaged(true);
+        btUpdateUser.setVisible(false);
+        btUpdateUser.setManaged(false);
+        btDeleteUser.setVisible(false);
+        btDeleteUser.setManaged(false);
     }
+
     public void btAddUserClick(ActionEvent actionEvent) throws IOException {
         String gender = ((RadioButton) groupGenders.getSelectedToggle()).getText();
         String status = ((RadioButton) groupStatuses.getSelectedToggle()).getText();
         String resp = GoRestClient.POST(tfUserName.getText(), gender, tfUserEmail.getText(), status);
         if (resp.equals("Hiba!")) {
-            lbTitle.setText(resp); lbTitle.setVisible(true); lbTitle.setManaged(true);
+            lbTitle.setText(resp);
+            lbTitle.setVisible(true);
+            lbTitle.setManaged(true);
         } else {
             JsonObject jsonObject = new JsonParser().parse(resp).getAsJsonObject().get("data").getAsJsonObject();
 
@@ -374,6 +425,7 @@ public class CitiesController {
         }
         return userList;
     }
+
     public void menuReadGoRestClick() throws IOException {
         DeleteElements();
         String resp = GoRestClient.GET(null);
@@ -415,12 +467,14 @@ public class CitiesController {
             userIdsAndNames.add("%s - %s".formatted(user.getId(), StripJsonFromQuotes(user.getName())));
         }
         cbSelectUser.setItems(FXCollections.observableList(userIdsAndNames));
-        cbSelectUser.setVisible(true); cbSelectUser.setManaged(true);
+        cbSelectUser.setVisible(true);
+        cbSelectUser.setManaged(true);
     }
 
     private String StripJsonFromQuotes(String str) {
         return str.substring(1, str.length() - 1);
     }
+
     public void cbUserSelectAction(ActionEvent actionEvent) throws IOException {
         String id = (String) cbSelectUser.getValue();
         if (id != null) {
@@ -428,7 +482,8 @@ public class CitiesController {
             String resp = GoRestClient.GET(id);
             if (resp.equals("Hiba!")) {
                 lbTitle.setText("Hiba!");
-                lbTitle.setVisible(true); lbTitle.setManaged(true);
+                lbTitle.setVisible(true);
+                lbTitle.setManaged(true);
             } else {
                 JsonObject jsonObject = new JsonParser().parse(resp).getAsJsonObject().get("data").getAsJsonObject();
                 tfUserName.setText(StripJsonFromQuotes(String.valueOf(jsonObject.get("name"))));
@@ -449,12 +504,17 @@ public class CitiesController {
 
     public void menuUpdateGoRestClick() throws IOException {
         DeleteElements();
-        gpUser.setVisible(true); gpUser.setManaged(true);
+        gpUser.setVisible(true);
+        gpUser.setManaged(true);
         fillUserComboBox();
-        btAddUser.setVisible(false); btAddUser.setManaged(false);
-        btUpdateUser.setVisible(true); btUpdateUser.setManaged(true);
-        btDeleteUser.setVisible(false); btDeleteUser.setManaged(false);
+        btAddUser.setVisible(false);
+        btAddUser.setManaged(false);
+        btUpdateUser.setVisible(true);
+        btUpdateUser.setManaged(true);
+        btDeleteUser.setVisible(false);
+        btDeleteUser.setManaged(false);
     }
+
     public void btUpdateUserClick() throws IOException {
         String id = (String) cbSelectUser.getValue();
         if (id != null) {
@@ -488,7 +548,9 @@ public class CitiesController {
                 }
                 String result = GoRestClient.PUT(id, newName, newGender, newEmail, newStatus);
                 if (result.equals("Hiba!")) {
-                    lbTitle.setText(resp); lbTitle.setVisible(true); lbTitle.setManaged(true);
+                    lbTitle.setText(resp);
+                    lbTitle.setVisible(true);
+                    lbTitle.setManaged(true);
                 } else {
                     JsonObject jsonObject2 = new JsonParser().parse(result).getAsJsonObject().get("data").getAsJsonObject();
 
@@ -508,15 +570,23 @@ public class CitiesController {
 
     public void menuDeleteGoRestClick() throws IOException {
         DeleteElements();
-        gpUser.setVisible(true); gpUser.setManaged(true);
+        gpUser.setVisible(true);
+        gpUser.setManaged(true);
         fillUserComboBox();
-        btAddUser.setVisible(false); btAddUser.setManaged(false);
-        btUpdateUser.setVisible(false); btUpdateUser.setManaged(false);
-        btDeleteUser.setVisible(true); btDeleteUser.setManaged(true);
-        tfUserName.setDisable(true); tfUserEmail.setDisable(true);
-        rbGenderMale.setDisable(true); rbGenderFemale.setDisable(true);
-        rbStatusActive.setDisable(true); rbStatusInactive.setDisable(true);
+        btAddUser.setVisible(false);
+        btAddUser.setManaged(false);
+        btUpdateUser.setVisible(false);
+        btUpdateUser.setManaged(false);
+        btDeleteUser.setVisible(true);
+        btDeleteUser.setManaged(true);
+        tfUserName.setDisable(true);
+        tfUserEmail.setDisable(true);
+        rbGenderMale.setDisable(true);
+        rbGenderFemale.setDisable(true);
+        rbStatusActive.setDisable(true);
+        rbStatusInactive.setDisable(true);
     }
+
     public void btDeleteUserClick() throws IOException {
         String id = (String) cbSelectUser.getValue();
         if (id != null) {
@@ -528,7 +598,9 @@ public class CitiesController {
             String msg;
             if (result.get() == ButtonType.OK) {
                 if (GoRestClient.DELETE(id).equals("Hiba!")) {
-                    lbTitle.setText("Hiba a törlés közben."); lbTitle.setVisible(true); lbTitle.setManaged(true);
+                    lbTitle.setText("Hiba a törlés közben.");
+                    lbTitle.setVisible(true);
+                    lbTitle.setManaged(true);
                 } else {
                     Alert successMsg = new Alert(Alert.AlertType.CONFIRMATION);
                     successMsg.setTitle("Sikeres törlés");
@@ -549,25 +621,28 @@ public class CitiesController {
 
 
     @FXML
-    public void l1_write()
-    {
+    public void l1_write() {
         lbFirst.setText("Blink no. " + c1);
     }
+
     @FXML
-    public void l2_write()
-    {
-        lbSecond.setText("Blink no. " +  c2);
+    public void l2_write() {
+        lbSecond.setText("Blink no. " + c2);
     }
+
     @FXML
     public void menuParallelClick() throws IOException {
         DeleteElements();
-        gpParallel.setVisible(true); gpParallel.setManaged(true);
+        gpParallel.setVisible(true);
+        gpParallel.setManaged(true);
         lbFirst.setVisible(true);
         lbSecond.setVisible(true);
-        lbFirst.setText("Press the button! 1 ");
-        lbSecond.setText("Press the button! 2 ");
-        btStartblink.setVisible(true); btStartblink.setManaged(true);
-        btStopblink.setVisible(true); btStopblink.setManaged(true);
+        lbFirst.setText("Press the button!");
+        lbSecond.setText("Press the button!");
+        btStartblink.setVisible(true);
+        btStartblink.setManaged(true);
+        btStopblink.setVisible(true);
+        btStopblink.setManaged(true);
 
     }
 
@@ -614,17 +689,19 @@ public class CitiesController {
             }
         }
     }
+
     Runner runner = new Runner();
     Runner2 runner2 = new Runner2();
+
     @FXML
     void btStartblinkClick() {
-        lbFirst.setText("asjkfhlak");
         tFlag = true;
         // Set the signal before starting the thread!
         runner.start();
         runner2.start();
 
     }
+
     @FXML
     void btStopblinkClick() {
 
@@ -632,6 +709,134 @@ public class CitiesController {
 
     }
 
+
+    @FXML
+    public void menuStreamClick() throws IOException {
+        DeleteElements();
+        cbMnevek.getItems().removeAll();
+        cbVnevek.getItems().removeAll();
+        mlist.removeAll(mlist);
+        gpStream.setVisible(true);
+        gpStream.setManaged(true);
+        cbMnevek.setVisible(true);
+        cbMnevek.setManaged(true);
+        btStartstr.setVisible(true);
+        btStartstr.setManaged(true);
+
+
+        List<String> mnevek = new ArrayList<>();
+
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/varosok","root",""); Statement stmt = con.createStatement();) {
+
+            String SQL = "SELECT * FROM varos INNER JOIN lelekszam ON varos.id = lelekszam.varosid INNER JOIN megye ON varos.megyeid = megye.id";
+            ResultSet rs = stmt.executeQuery(SQL);
+            while (rs.next()) {
+                Mindenegyben mindenegyben = new Mindenegyben();
+                mindenegyben.setVarosid(Integer.parseInt((rs.getString("varos.id"))));
+                mindenegyben.setEv((rs.getString("lelekszam.ev")));
+                mindenegyben.setNo(Integer.parseInt(rs.getString("lelekszam.no")));
+                mindenegyben.setOsszesen(Integer.parseInt(rs.getString("lelekszam.osszesen")));
+                mindenegyben.setVarosnev(rs.getString("varos.nev"));
+                mindenegyben.setMegyeid(Integer.parseInt((rs.getString("megye.id"))));
+                mindenegyben.setMegyeijogu(Integer.parseInt(rs.getString("varos.megyeijogu")));
+                mindenegyben.setMegyeszekhely(Integer.parseInt(rs.getString("varos.megyeszekhely")));
+                mindenegyben.setMegyenev(rs.getString("megye.nev"));
+                mlist.add(mindenegyben);
+            }
+            for (int i = 0; i < mlist.size(); i++) {
+                if (!mnevek.contains(mlist.get(i).getMegyenev())){
+                mnevek.add(mlist.get(i).getMegyenev());
+                    System.out.println(mlist.get(i).getMegyenev());
+                }
+                cbMnevek.setItems(FXCollections.observableList(mnevek));
+            }
+
+
+
+        }
+        // Handle any errors that may have occurred.
+         catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+}
+    @FXML
+    public void cbMnevekChanged() throws IOException {
+        cbVnevek.setVisible(true);
+        cbVnevek.setManaged(true);
+        String m = cbMnevek.getValue().toString();
+        List<String> varosnevek = new ArrayList<>();
+        for (int i = 0; i < mlist.size(); i++) {
+            String ml = mlist.get(i).getMegyenev();
+            if (!varosnevek.contains(mlist.get(i).getVarosnev())){
+                if (m.contains(ml)){varosnevek.add(mlist.get(i).getVarosnev());}
+
+            }
+            cbVnevek.setItems(FXCollections.observableList(varosnevek));
+        }
+
+    }
+    @FXML
+    public void cbVnevekChanged() throws IOException {
+
+
+    }
+    @FXML
+    public void btStartstrClick() {
+        DeleteElements();
+        tvMinden.setVisible(true);
+        tvMinden.setManaged(true);
+        cbMnevek.getItems().removeAll();
+        cbVnevek.getItems().removeAll();
+        tvMinden.getColumns().removeAll(tvMinden.getColumns());
+        mNev = new TableColumn<>("Megyenév");
+        vNev = new TableColumn<>("Városnév");
+        mSzekh = new TableColumn<>("Megyeszékhely");
+        mJog = new TableColumn<>("Megyei jogú város");
+        datum = new TableColumn<>("Dátum");
+        lakosok = new TableColumn<>("Lakosok száma");
+        nLakosok = new TableColumn<>("Női lakosok száma");
+        fLakosok = new TableColumn<>("Férfi lakosok száma");
+        tvMinden.getColumns().addAll(mNev, vNev, mSzekh, mJog, datum, lakosok, nLakosok, fLakosok);
+        mNev.setCellValueFactory(new PropertyValueFactory<>("mnv"));
+        vNev.setCellValueFactory(new PropertyValueFactory<>("vnev"));
+        mSzekh.setCellValueFactory(new PropertyValueFactory<>("mszekh"));
+        mJog.setCellValueFactory(new PropertyValueFactory<>("mjog"));
+        datum.setCellValueFactory(new PropertyValueFactory<>("datum"));
+        lakosok.setCellValueFactory(new PropertyValueFactory<>("lakosok"));
+        nLakosok.setCellValueFactory(new PropertyValueFactory<>("nlakosok"));
+        fLakosok.setCellValueFactory(new PropertyValueFactory<>("flakosok"));
+        tvMinden.getItems().clear();
+
+
+        mlist.stream()
+                .forEach(i -> {
+                    if (i.getVarosnev().contentEquals(cbVnevek.getValue().toString())) {
+                        String szkhely = "igen";
+                        String jog = "igen";
+                        MindenView mindenView = new MindenView();
+                        if (i.getMegyeszekhely() == 0)
+                        {
+                            szkhely = "nem";
+                        }if (i.getMegyeijogu() == 0)
+                        {
+                            jog = "nem";
+                        }
+
+                        mindenView.setMnev(i.getMegyenev());
+                        mindenView.setVnev(i.getVarosnev());
+                        mindenView.setMszekh(szkhely);
+                        mindenView.setMjog(jog);
+                        mindenView.setDatum(i.getEv().toString());
+                        mindenView.setLakosok(String.valueOf(i.getOsszesen()));
+                        mindenView.setNlakosok(String.valueOf(i.getNo()));
+                        mindenView.setFlakosok(String.valueOf(i.getOsszesen()-i.getNo()));
+                        tvMinden.getItems().add(mindenView);
+                        System.out.println(mindenView);
+                    }
+                });
+    }
 
 
 }
