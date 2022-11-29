@@ -16,6 +16,13 @@ import javafx.beans.property.SimpleStringProperty;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.functions.SMO;
+import weka.classifiers.lazy.IBk;
+import weka.classifiers.trees.J48;
+import weka.classifiers.trees.RandomForest;
+import weka.core.Utils;
+
 import java.io.IOException;
 import java.sql.*;
 import java.time.Year;
@@ -31,13 +38,16 @@ public class CitiesController {
     int c1 = 0;
     int c2 = 0;
     @FXML
-    private Label lbTitle, lbWrongNumFormat, lbWrongNumFormatWomen, lbFirst, lbSecond;
+    private Label lbTitle, lbWrongNumFormat, lbWrongNumFormatWomen, lbFirst, lbSecond, lbML1, lbML2;
     @FXML
-    private GridPane gpAddCity, gpDeleteCity, gpUser, gpParallel, gpStream;
+    private TextArea taMlalg;
+
+    @FXML
+    private GridPane gpAddCity, gpDeleteCity, gpUser, gpParallel, gpStream, gpML1, gpML2;
     @FXML
     private TextField tfCityName, tfPopulation, tfWomen, tfUserName, tfUserEmail;
     @FXML
-    private ComboBox cbCounty, cbDelCity, cbSelectUser, cbMnevek, cbVnevek;
+    private ComboBox cbCounty, cbDelCity, cbSelectUser, cbMnevek, cbVnevek, cbAlg;
     @FXML
     private ToggleGroup groupCountyCapital, groupCountyRights, groupStatuses, groupGenders;
     @FXML
@@ -92,6 +102,8 @@ public class CitiesController {
     void DeleteElements() {
         lbTitle.setVisible(false);
         lbTitle.setManaged(false);
+        gpML1.setVisible(false);
+        gpML1.setManaged(false);
         lbFirst.setVisible(false);
         lbSecond.setVisible(false);
         btStartblink.setVisible(false);
@@ -100,6 +112,8 @@ public class CitiesController {
         gpAddCity.setManaged(false);
         gpStream.setVisible(false);
         gpStream.setManaged(false);
+        gpML2.setVisible(false);
+        gpML2.setManaged(false);
         gpParallel.setVisible(false);
         gpParallel.setManaged(false);
         gpDeleteCity.setVisible(false);
@@ -126,6 +140,8 @@ public class CitiesController {
         btStartstr.setVisible(false);
         tvMinden.setVisible(false);
         tvMinden.setManaged(false);
+        taMlalg.setVisible(false);
+        taMlalg.setManaged(false);
     }
 
     @FXML
@@ -838,5 +854,130 @@ public class CitiesController {
                 });
     }
 
+    public void menudontfaClick() throws Exception {
+        String fájlNév = "data/diabetes.arff";
+        int classIndex=8;	// 20. oszlopot kell előre jelezni
+        new MachineLearning(fájlNév, classIndex);
+    }
+
+    @FXML
+    public void lML1_write(String a) {
+        lbML1.setText(a);
+    }
+    @FXML
+    public void lML2_write(String a) {
+        lbML2.setText(a);
+    }
+    @FXML
+    public void menutobbalgClick() throws Exception {
+        DeleteElements();
+        gpML1.setVisible(true);
+        gpML1.setManaged(true);
+        lML1_write("Loading...");
+        String fájlNév = "data/diabetes.arff";
+        int classIndex=8;	// 20. oszlopot kell előre jelezni
+        String j48_cci =  new MachineLearningCrossValidation(fájlNév, classIndex, new J48()).getCci_pct();
+        String SMO_cci =  new MachineLearningCrossValidation(fájlNév, classIndex, new SMO()).getCci_pct();
+        String naive_cci =  new MachineLearningCrossValidation(fájlNév, classIndex, new NaiveBayes()).getCci_pct();
+        IBk classifier = new IBk();
+        // 10 legközelebbi szomszéd:
+        classifier.setOptions(Utils.splitOptions("-K 10"));
+        String k10_cci =  new MachineLearningCrossValidation(fájlNév, classIndex, classifier).getCci_pct();
+        String rf_cci =  new MachineLearningCrossValidation(fájlNév, classIndex, new RandomForest()).getCci_pct();
+        float cv[];
+        cv = new float[5];
+        cv[0] = Float.parseFloat(j48_cci);
+        cv[1] = Float.parseFloat(SMO_cci);
+        cv[2] = Float.parseFloat(naive_cci);
+        cv[3] = Float.parseFloat(k10_cci);
+        cv[4] = Float.parseFloat(rf_cci);
+        System.out.println(j48_cci + "  " + SMO_cci + "  " + naive_cci + "  " + k10_cci + "  " + rf_cci);
+        String best = "";
+        float bestn = 0;
+        int nb = 0;
+        for (int i = 0; i < 5; i++)
+        {
+            if(cv[i] > bestn)
+            {
+                nb = i;
+                bestn = cv[i];
+            }
+        }
+
+        switch (nb) {
+            case 0:
+                best = "J 48";
+                break;
+            case 1:
+                best = "SMO";;
+                break;
+            case 2:
+                best = "NaiveBayes";;
+                break;
+            case 3:
+                best = "-K 10";
+                break;
+            case 4:
+                best = "Random Forest";
+                break;
+
+        }
+        lML1_write("Best algorithm is: " + best);
+        lML2_write("With CCI percent: " + bestn);
+        System.out.println(best + "  "+ bestn);
+
+
+    }
+    @FXML
+    public void menutobbalg2Click() throws Exception {
+        DeleteElements();
+        gpML2.setVisible(true);
+        gpML2.setManaged(true);
+        List<String> s = new ArrayList<>();
+        s.add("J 48");
+        s.add("SMO");
+        s.add("NaiveBayes");
+        s.add("-K 10");
+        s.add("Random Forest");
+        cbAlg.setItems(FXCollections.observableList(s));
+
+    }
+    @FXML //TP, TN, FP, FN, Correctly Classified Instances, Incorrectly Classified Instances
+    public void btStartalgClick() throws Exception {
+        taMlalg.setVisible(true);
+        taMlalg.setManaged(true);
+        String fájlNév = "data/diabetes.arff";
+        int classIndex=8;
+        String chosen = cbAlg.getValue().toString();
+        String adat = "";
+        switch (chosen) {
+            case "J 48":
+                adat =  new MLCV2(fájlNév, classIndex, new J48()).getAdat();
+                taMlalg.setText(adat);
+                break;
+            case "SMO":
+                adat =  new MLCV2(fájlNév, classIndex, new SMO()).getAdat();
+                taMlalg.setText(adat);
+                break;
+            case "NaiveBayes":
+                adat =  new MLCV2(fájlNév, classIndex, new NaiveBayes()).getAdat();
+                taMlalg.setText(adat);
+                break;
+            case "-K 10":
+                IBk classifier = new IBk();
+                classifier.setOptions(Utils.splitOptions("-K 10"));
+                adat =  new MLCV2(fájlNév, classIndex,  classifier).getAdat();
+                taMlalg.setText(adat);
+                break;
+            case "Random Forest":
+                adat =  new MLCV2(fájlNév, classIndex, new RandomForest()).getAdat();
+                taMlalg.setText(adat);
+                break;
+
+        }
+        taMlalg.setText(adat);
+
+
+    }
 
 }

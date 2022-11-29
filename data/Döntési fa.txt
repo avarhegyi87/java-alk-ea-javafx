@@ -1,0 +1,8 @@
+Tanító halmaz mérete: 691
+kiértékelő halmaz mérete 76
+TP(TruePositive): 17
+TP(TrueNegative): 41
+FP(FalsePositive): 4
+FP(FalseNegative): 14
+Correctly Classified Instances: 646.0
+Incorrectly Classified Instances: 122.0

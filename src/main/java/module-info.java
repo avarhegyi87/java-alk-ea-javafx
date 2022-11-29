@@ -6,6 +6,7 @@ module com.example.cities {
     requires java.sql;
     requires org.hibernate.orm.core;
     requires com.google.gson;
+    requires weka.stable;
 
     opens com.example.cities to javafx.fxml;
     exports com.example.cities;
