@@ -1,3 +1,174 @@
+SMO
+
+Kernel used:
+  Linear Kernel: K(x,y) = <x,y>
+
+Classifier for classes: tested_negative, tested_positive
+
+BinarySMO
+
+Machine linear: showing attribute weights, not support vectors.
+
+         1.3614 * (normalized) preg
+ +       4.8764 * (normalized) plas
+ +      -0.8118 * (normalized) pres
+ +      -0.1158 * (normalized) skin
+ +      -0.1776 * (normalized) insu
+ +       3.0745 * (normalized) mass
+ +       1.4242 * (normalized) pedi
+ +       0.2601 * (normalized) age
+ -       5.1761
+
+Number of kernel evaluations: 19131 (69.279% cached)
+
+
+Tanító halmaz mérete: 691
+kiértékelő halmaz mérete 76
+TP(TruePositive): 19
+TP(TrueNegative): 41
+FP(FalsePositive): 4
+FP(FalseNegative): 12
+Correctly Classified Instances: 595.0
+Incorrectly Classified Instances: 173.0
+RandomForest
+
+Bagging with 100 iterations and base learner
+
+weka.classifiers.trees.RandomTree -K 0 -M 1.0 -V 0.001 -S 1 -do-not-check-capabilities
+Tanító halmaz mérete: 691
+kiértékelő halmaz mérete 76
+TP(TruePositive): 22
+TP(TrueNegative): 39
+FP(FalsePositive): 6
+FP(FalseNegative): 9
+Correctly Classified Instances: 768.0
+Incorrectly Classified Instances: 0.0
+Naive Bayes Classifier
+
+                         Class
+Attribute      tested_negative tested_positive
+                        (0.65)          (0.35)
+===============================================
+preg
+  mean                   3.4234          4.9795
+  std. dev.              3.0166          3.6827
+  weight sum                500             268
+  precision              1.0625          1.0625
+
+plas
+  mean                 109.9541        141.2581
+  std. dev.             26.1114         31.8728
+  weight sum                500             268
+  precision              1.4741          1.4741
+
+pres
+  mean                  68.1397          70.718
+  std. dev.             17.9834         21.4094
+  weight sum                500             268
+  precision              2.6522          2.6522
+
+skin
+  mean                  19.8356         22.2824
+  std. dev.             14.8974         17.6992
+  weight sum                500             268
+  precision                1.98            1.98
+
+insu
+  mean                  68.8507        100.2812
+  std. dev.              98.828        138.4883
+  weight sum                500             268
+  precision               4.573           4.573
+
+mass
+  mean                  30.3009         35.1475
+  std. dev.              7.6833          7.2537
+  weight sum                500             268
+  precision              0.2717          0.2717
+
+pedi
+  mean                   0.4297          0.5504
+  std. dev.              0.2986          0.3715
+  weight sum                500             268
+  precision              0.0045          0.0045
+
+age
+  mean                  31.2494         37.0808
+  std. dev.             11.6059         10.9146
+  weight sum                500             268
+  precision              1.1765          1.1765
+
+
+Tanító halmaz mérete: 691
+kiértékelő halmaz mérete 76
+TP(TruePositive): 18
+TP(TrueNegative): 39
+FP(FalsePositive): 6
+FP(FalseNegative): 13
+Correctly Classified Instances: 586.0
+Incorrectly Classified Instances: 182.0
+Naive Bayes Classifier
+
+                         Class
+Attribute      tested_negative tested_positive
+                        (0.65)          (0.35)
+===============================================
+preg
+  mean                   3.4234          4.9795
+  std. dev.              3.0166          3.6827
+  weight sum                500             268
+  precision              1.0625          1.0625
+
+plas
+  mean                 109.9541        141.2581
+  std. dev.             26.1114         31.8728
+  weight sum                500             268
+  precision              1.4741          1.4741
+
+pres
+  mean                  68.1397          70.718
+  std. dev.             17.9834         21.4094
+  weight sum                500             268
+  precision              2.6522          2.6522
+
+skin
+  mean                  19.8356         22.2824
+  std. dev.             14.8974         17.6992
+  weight sum                500             268
+  precision                1.98            1.98
+
+insu
+  mean                  68.8507        100.2812
+  std. dev.              98.828        138.4883
+  weight sum                500             268
+  precision               4.573           4.573
+
+mass
+  mean                  30.3009         35.1475
+  std. dev.              7.6833          7.2537
+  weight sum                500             268
+  precision              0.2717          0.2717
+
+pedi
+  mean                   0.4297          0.5504
+  std. dev.              0.2986          0.3715
+  weight sum                500             268
+  precision              0.0045          0.0045
+
+age
+  mean                  31.2494         37.0808
+  std. dev.             11.6059         10.9146
+  weight sum                500             268
+  precision              1.1765          1.1765
+
+
+Tanító halmaz mérete: 691
+kiértékelő halmaz mérete 76
+TP(TruePositive): 18
+TP(TrueNegative): 39
+FP(FalsePositive): 6
+FP(FalseNegative): 13
+Correctly Classified Instances: 586.0
+Incorrectly Classified Instances: 182.0
 J48 pruned tree
 ------------------
 
@@ -171,330 +342,38 @@ FP(FalsePositive): 6
 FP(FalseNegative): 9
 Correctly Classified Instances: 768.0
 Incorrectly Classified Instances: 0.0
-J48 pruned tree
-------------------
+SMO
 
-plas <= 127
-|   mass <= 26.4: tested_negative (132.0/3.0)
-|   mass > 26.4
-|   |   age <= 28: tested_negative (180.0/22.0)
-|   |   age > 28
-|   |   |   plas <= 99: tested_negative (55.0/10.0)
-|   |   |   plas > 99
-|   |   |   |   pedi <= 0.56: tested_negative (84.0/34.0)
-|   |   |   |   pedi > 0.56
-|   |   |   |   |   preg <= 6
-|   |   |   |   |   |   age <= 30: tested_positive (4.0)
-|   |   |   |   |   |   age > 30
-|   |   |   |   |   |   |   age <= 34: tested_negative (7.0/1.0)
-|   |   |   |   |   |   |   age > 34
-|   |   |   |   |   |   |   |   mass <= 33.1: tested_positive (6.0)
-|   |   |   |   |   |   |   |   mass > 33.1: tested_negative (4.0/1.0)
-|   |   |   |   |   preg > 6: tested_positive (13.0)
-plas > 127
-|   mass <= 29.9
-|   |   plas <= 145: tested_negative (41.0/6.0)
-|   |   plas > 145
-|   |   |   age <= 25: tested_negative (4.0)
-|   |   |   age > 25
-|   |   |   |   age <= 61
-|   |   |   |   |   mass <= 27.1: tested_positive (12.0/1.0)
-|   |   |   |   |   mass > 27.1
-|   |   |   |   |   |   pres <= 82
-|   |   |   |   |   |   |   pedi <= 0.396: tested_positive (8.0/1.0)
-|   |   |   |   |   |   |   pedi > 0.396: tested_negative (3.0)
-|   |   |   |   |   |   pres > 82: tested_negative (4.0)
-|   |   |   |   age > 61: tested_negative (4.0)
-|   mass > 29.9
-|   |   plas <= 157
-|   |   |   pres <= 61: tested_positive (15.0/1.0)
-|   |   |   pres > 61
-|   |   |   |   age <= 30: tested_negative (40.0/13.0)
-|   |   |   |   age > 30: tested_positive (60.0/17.0)
-|   |   plas > 157: tested_positive (92.0/12.0)
+Kernel used:
+  Linear Kernel: K(x,y) = <x,y>
 
-Number of Leaves  : 	20
+Classifier for classes: tested_negative, tested_positive
 
-Size of the tree : 	39
+BinarySMO
+
+Machine linear: showing attribute weights, not support vectors.
+
+         1.3614 * (normalized) preg
+ +       4.8764 * (normalized) plas
+ +      -0.8118 * (normalized) pres
+ +      -0.1158 * (normalized) skin
+ +      -0.1776 * (normalized) insu
+ +       3.0745 * (normalized) mass
+ +       1.4242 * (normalized) pedi
+ +       0.2601 * (normalized) age
+ -       5.1761
+
+Number of kernel evaluations: 19131 (69.279% cached)
+
 
 Tanító halmaz mérete: 691
 kiértékelő halmaz mérete 76
-TP(TruePositive): 17
+TP(TruePositive): 19
 TP(TrueNegative): 41
 FP(FalsePositive): 4
-FP(FalseNegative): 14
-Correctly Classified Instances: 646.0
-Incorrectly Classified Instances: 122.0
-J48 pruned tree
-------------------
-
-plas <= 127
-|   mass <= 26.4: tested_negative (132.0/3.0)
-|   mass > 26.4
-|   |   age <= 28: tested_negative (180.0/22.0)
-|   |   age > 28
-|   |   |   plas <= 99: tested_negative (55.0/10.0)
-|   |   |   plas > 99
-|   |   |   |   pedi <= 0.56: tested_negative (84.0/34.0)
-|   |   |   |   pedi > 0.56
-|   |   |   |   |   preg <= 6
-|   |   |   |   |   |   age <= 30: tested_positive (4.0)
-|   |   |   |   |   |   age > 30
-|   |   |   |   |   |   |   age <= 34: tested_negative (7.0/1.0)
-|   |   |   |   |   |   |   age > 34
-|   |   |   |   |   |   |   |   mass <= 33.1: tested_positive (6.0)
-|   |   |   |   |   |   |   |   mass > 33.1: tested_negative (4.0/1.0)
-|   |   |   |   |   preg > 6: tested_positive (13.0)
-plas > 127
-|   mass <= 29.9
-|   |   plas <= 145: tested_negative (41.0/6.0)
-|   |   plas > 145
-|   |   |   age <= 25: tested_negative (4.0)
-|   |   |   age > 25
-|   |   |   |   age <= 61
-|   |   |   |   |   mass <= 27.1: tested_positive (12.0/1.0)
-|   |   |   |   |   mass > 27.1
-|   |   |   |   |   |   pres <= 82
-|   |   |   |   |   |   |   pedi <= 0.396: tested_positive (8.0/1.0)
-|   |   |   |   |   |   |   pedi > 0.396: tested_negative (3.0)
-|   |   |   |   |   |   pres > 82: tested_negative (4.0)
-|   |   |   |   age > 61: tested_negative (4.0)
-|   mass > 29.9
-|   |   plas <= 157
-|   |   |   pres <= 61: tested_positive (15.0/1.0)
-|   |   |   pres > 61
-|   |   |   |   age <= 30: tested_negative (40.0/13.0)
-|   |   |   |   age > 30: tested_positive (60.0/17.0)
-|   |   plas > 157: tested_positive (92.0/12.0)
-
-Number of Leaves  : 	20
-
-Size of the tree : 	39
-
-Tanító halmaz mérete: 691
-kiértékelő halmaz mérete 76
-TP(TruePositive): 17
-TP(TrueNegative): 41
-FP(FalsePositive): 4
-FP(FalseNegative): 14
-Correctly Classified Instances: 646.0
-Incorrectly Classified Instances: 122.0
-J48 pruned tree
-------------------
-
-plas <= 127
-|   mass <= 26.4: tested_negative (132.0/3.0)
-|   mass > 26.4
-|   |   age <= 28: tested_negative (180.0/22.0)
-|   |   age > 28
-|   |   |   plas <= 99: tested_negative (55.0/10.0)
-|   |   |   plas > 99
-|   |   |   |   pedi <= 0.56: tested_negative (84.0/34.0)
-|   |   |   |   pedi > 0.56
-|   |   |   |   |   preg <= 6
-|   |   |   |   |   |   age <= 30: tested_positive (4.0)
-|   |   |   |   |   |   age > 30
-|   |   |   |   |   |   |   age <= 34: tested_negative (7.0/1.0)
-|   |   |   |   |   |   |   age > 34
-|   |   |   |   |   |   |   |   mass <= 33.1: tested_positive (6.0)
-|   |   |   |   |   |   |   |   mass > 33.1: tested_negative (4.0/1.0)
-|   |   |   |   |   preg > 6: tested_positive (13.0)
-plas > 127
-|   mass <= 29.9
-|   |   plas <= 145: tested_negative (41.0/6.0)
-|   |   plas > 145
-|   |   |   age <= 25: tested_negative (4.0)
-|   |   |   age > 25
-|   |   |   |   age <= 61
-|   |   |   |   |   mass <= 27.1: tested_positive (12.0/1.0)
-|   |   |   |   |   mass > 27.1
-|   |   |   |   |   |   pres <= 82
-|   |   |   |   |   |   |   pedi <= 0.396: tested_positive (8.0/1.0)
-|   |   |   |   |   |   |   pedi > 0.396: tested_negative (3.0)
-|   |   |   |   |   |   pres > 82: tested_negative (4.0)
-|   |   |   |   age > 61: tested_negative (4.0)
-|   mass > 29.9
-|   |   plas <= 157
-|   |   |   pres <= 61: tested_positive (15.0/1.0)
-|   |   |   pres > 61
-|   |   |   |   age <= 30: tested_negative (40.0/13.0)
-|   |   |   |   age > 30: tested_positive (60.0/17.0)
-|   |   plas > 157: tested_positive (92.0/12.0)
-
-Number of Leaves  : 	20
-
-Size of the tree : 	39
-
-Tanító halmaz mérete: 691
-kiértékelő halmaz mérete 76
-TP(TruePositive): 17
-TP(TrueNegative): 41
-FP(FalsePositive): 4
-FP(FalseNegative): 14
-Correctly Classified Instances: 646.0
-Incorrectly Classified Instances: 122.0
-J48 pruned tree
-------------------
-
-plas <= 127
-|   mass <= 26.4: tested_negative (132.0/3.0)
-|   mass > 26.4
-|   |   age <= 28: tested_negative (180.0/22.0)
-|   |   age > 28
-|   |   |   plas <= 99: tested_negative (55.0/10.0)
-|   |   |   plas > 99
-|   |   |   |   pedi <= 0.56: tested_negative (84.0/34.0)
-|   |   |   |   pedi > 0.56
-|   |   |   |   |   preg <= 6
-|   |   |   |   |   |   age <= 30: tested_positive (4.0)
-|   |   |   |   |   |   age > 30
-|   |   |   |   |   |   |   age <= 34: tested_negative (7.0/1.0)
-|   |   |   |   |   |   |   age > 34
-|   |   |   |   |   |   |   |   mass <= 33.1: tested_positive (6.0)
-|   |   |   |   |   |   |   |   mass > 33.1: tested_negative (4.0/1.0)
-|   |   |   |   |   preg > 6: tested_positive (13.0)
-plas > 127
-|   mass <= 29.9
-|   |   plas <= 145: tested_negative (41.0/6.0)
-|   |   plas > 145
-|   |   |   age <= 25: tested_negative (4.0)
-|   |   |   age > 25
-|   |   |   |   age <= 61
-|   |   |   |   |   mass <= 27.1: tested_positive (12.0/1.0)
-|   |   |   |   |   mass > 27.1
-|   |   |   |   |   |   pres <= 82
-|   |   |   |   |   |   |   pedi <= 0.396: tested_positive (8.0/1.0)
-|   |   |   |   |   |   |   pedi > 0.396: tested_negative (3.0)
-|   |   |   |   |   |   pres > 82: tested_negative (4.0)
-|   |   |   |   age > 61: tested_negative (4.0)
-|   mass > 29.9
-|   |   plas <= 157
-|   |   |   pres <= 61: tested_positive (15.0/1.0)
-|   |   |   pres > 61
-|   |   |   |   age <= 30: tested_negative (40.0/13.0)
-|   |   |   |   age > 30: tested_positive (60.0/17.0)
-|   |   plas > 157: tested_positive (92.0/12.0)
-
-Number of Leaves  : 	20
-
-Size of the tree : 	39
-
-Tanító halmaz mérete: 691
-kiértékelő halmaz mérete 76
-TP(TruePositive): 17
-TP(TrueNegative): 41
-FP(FalsePositive): 4
-FP(FalseNegative): 14
-Correctly Classified Instances: 646.0
-Incorrectly Classified Instances: 122.0
-J48 pruned tree
-------------------
-
-plas <= 127
-|   mass <= 26.4: tested_negative (132.0/3.0)
-|   mass > 26.4
-|   |   age <= 28: tested_negative (180.0/22.0)
-|   |   age > 28
-|   |   |   plas <= 99: tested_negative (55.0/10.0)
-|   |   |   plas > 99
-|   |   |   |   pedi <= 0.56: tested_negative (84.0/34.0)
-|   |   |   |   pedi > 0.56
-|   |   |   |   |   preg <= 6
-|   |   |   |   |   |   age <= 30: tested_positive (4.0)
-|   |   |   |   |   |   age > 30
-|   |   |   |   |   |   |   age <= 34: tested_negative (7.0/1.0)
-|   |   |   |   |   |   |   age > 34
-|   |   |   |   |   |   |   |   mass <= 33.1: tested_positive (6.0)
-|   |   |   |   |   |   |   |   mass > 33.1: tested_negative (4.0/1.0)
-|   |   |   |   |   preg > 6: tested_positive (13.0)
-plas > 127
-|   mass <= 29.9
-|   |   plas <= 145: tested_negative (41.0/6.0)
-|   |   plas > 145
-|   |   |   age <= 25: tested_negative (4.0)
-|   |   |   age > 25
-|   |   |   |   age <= 61
-|   |   |   |   |   mass <= 27.1: tested_positive (12.0/1.0)
-|   |   |   |   |   mass > 27.1
-|   |   |   |   |   |   pres <= 82
-|   |   |   |   |   |   |   pedi <= 0.396: tested_positive (8.0/1.0)
-|   |   |   |   |   |   |   pedi > 0.396: tested_negative (3.0)
-|   |   |   |   |   |   pres > 82: tested_negative (4.0)
-|   |   |   |   age > 61: tested_negative (4.0)
-|   mass > 29.9
-|   |   plas <= 157
-|   |   |   pres <= 61: tested_positive (15.0/1.0)
-|   |   |   pres > 61
-|   |   |   |   age <= 30: tested_negative (40.0/13.0)
-|   |   |   |   age > 30: tested_positive (60.0/17.0)
-|   |   plas > 157: tested_positive (92.0/12.0)
-
-Number of Leaves  : 	20
-
-Size of the tree : 	39
-
-Tanító halmaz mérete: 691
-kiértékelő halmaz mérete 76
-TP(TruePositive): 17
-TP(TrueNegative): 41
-FP(FalsePositive): 4
-FP(FalseNegative): 14
-Correctly Classified Instances: 646.0
-Incorrectly Classified Instances: 122.0
-J48 pruned tree
-------------------
-
-plas <= 127
-|   mass <= 26.4: tested_negative (132.0/3.0)
-|   mass > 26.4
-|   |   age <= 28: tested_negative (180.0/22.0)
-|   |   age > 28
-|   |   |   plas <= 99: tested_negative (55.0/10.0)
-|   |   |   plas > 99
-|   |   |   |   pedi <= 0.56: tested_negative (84.0/34.0)
-|   |   |   |   pedi > 0.56
-|   |   |   |   |   preg <= 6
-|   |   |   |   |   |   age <= 30: tested_positive (4.0)
-|   |   |   |   |   |   age > 30
-|   |   |   |   |   |   |   age <= 34: tested_negative (7.0/1.0)
-|   |   |   |   |   |   |   age > 34
-|   |   |   |   |   |   |   |   mass <= 33.1: tested_positive (6.0)
-|   |   |   |   |   |   |   |   mass > 33.1: tested_negative (4.0/1.0)
-|   |   |   |   |   preg > 6: tested_positive (13.0)
-plas > 127
-|   mass <= 29.9
-|   |   plas <= 145: tested_negative (41.0/6.0)
-|   |   plas > 145
-|   |   |   age <= 25: tested_negative (4.0)
-|   |   |   age > 25
-|   |   |   |   age <= 61
-|   |   |   |   |   mass <= 27.1: tested_positive (12.0/1.0)
-|   |   |   |   |   mass > 27.1
-|   |   |   |   |   |   pres <= 82
-|   |   |   |   |   |   |   pedi <= 0.396: tested_positive (8.0/1.0)
-|   |   |   |   |   |   |   pedi > 0.396: tested_negative (3.0)
-|   |   |   |   |   |   pres > 82: tested_negative (4.0)
-|   |   |   |   age > 61: tested_negative (4.0)
-|   mass > 29.9
-|   |   plas <= 157
-|   |   |   pres <= 61: tested_positive (15.0/1.0)
-|   |   |   pres > 61
-|   |   |   |   age <= 30: tested_negative (40.0/13.0)
-|   |   |   |   age > 30: tested_positive (60.0/17.0)
-|   |   plas > 157: tested_positive (92.0/12.0)
-
-Number of Leaves  : 	20
-
-Size of the tree : 	39
-
-Tanító halmaz mérete: 691
-kiértékelő halmaz mérete 76
-TP(TruePositive): 17
-TP(TrueNegative): 41
-FP(FalsePositive): 4
-FP(FalseNegative): 14
-Correctly Classified Instances: 646.0
-Incorrectly Classified Instances: 122.0
+FP(FalseNegative): 12
+Correctly Classified Instances: 595.0
+Incorrectly Classified Instances: 173.0
 Naive Bayes Classifier
 
                          Class
